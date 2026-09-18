@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { artworks } from "@/lib/artworks";
 
-const baseUrl = "https://artblush.example.com";
+const baseUrl = "https://www.artblush.in";
 
 const staticRoutes = ["", "/portfolio", "/about", "/contact"].map((route) => ({
   url: `${baseUrl}${route}`,

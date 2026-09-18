@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "ArtBlush — Art, Drawn With Feeling",
   description:
     "ArtBlush creates hand-drawn portraits and original artworks that turn meaningful moments into timeless pieces.",
-  metadataBase: new URL("https://artblush.example.com"),
+  metadataBase: new URL("https://www.artblush.in"),
   openGraph: {
     title: "ArtBlush — Art, Drawn With Feeling",
     description:
