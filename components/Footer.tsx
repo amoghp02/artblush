@@ -68,7 +68,7 @@ export default function Footer() {
             <ul className="mt-5 space-y-3">
               <li>
                 <a
-                  href="https://www.instagram.com"
+                  href="https://www.instagram.com/_artblush_"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-foreground/70 transition-colors hover:text-foreground"

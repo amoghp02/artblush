@@ -41,12 +41,12 @@ export default function ContactPage() {
                   </dt>
                   <dd className="mt-2">
                     <a
-                      href="https://www.instagram.com"
+                      href="https://www.instagram.com/_artblush_"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-base text-foreground transition-colors hover:text-accent"
                     >
-                      @artblush
+                      @_artblush_
                       <span aria-hidden="true" className="text-sm">
                         ↗
                       </span>
@@ -79,8 +79,8 @@ export default function ContactPage() {
               </dl>
 
               <p className="mt-12 text-sm leading-relaxed text-foreground/55">
-                Placeholder contact details are shown here — swap them out with the
-                studio’s real email and Instagram handle before launch.
+                The email address shown is a placeholder — swap it with the studio’s
+                real email before launch.
               </p>
             </div>
           </Reveal>
