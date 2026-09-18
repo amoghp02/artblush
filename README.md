@@ -86,6 +86,17 @@ when ready — swap the files into `public/` or a CDN and update the URL.
 Contact details, social links, and the `metadataBase` / sitemap host in
 `app/layout.tsx` and `app/sitemap.ts` are placeholders — replace them before launch.
 
+## Deployment
+
+Production: **https://artblush.vercel.app** — auto-deploys on every push to `main`
+via Vercel's GitHub integration.
+
+Custom domain: `artblush.in` (GoDaddy) once DNS records are set.
+
+```bash
+vercel --prod   # manual deploy from this machine (if not using git)
+```
+
 ## Future phases (intentionally not built)
 
 - Phase 2: Shop, cart, checkout (Razorpay), customer accounts
