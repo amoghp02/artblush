@@ -13,11 +13,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Hand-drawn portrait / charcoal art brand. 'Art, Drawn With Feeling'. Read this
 before making any changes; update it as the project evolves.
 
-## Status: Phase 2 IN PROGRESS (buy-now flow built, NOT deployed/configured yet)
+## Status: Phase 2 LIVE (buy-now flow) — checkout armed with Razorpay test keys
 
-Phase 1 (static premium gallery) is COMPLETE and LIVE. Phase 2 (marketplace:
-shop/cart/checkout via Razorpay, no accounts yet) is coded but pending the
-DATABASE_URL + Razorpay keys from the owner before it can go live.
+Phase 1 (static premium gallery) is LIVE. Phase 2 marketplace (Neon/Drizzle catalog,
+cookie cart, Razorpay Standard Checkout) is fully deployed and the payment step is
+armed with TEST keys. Real-money orders require swapping in LIVE Razorpay keys +
+confirming real pricing.
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -34,8 +35,13 @@ DATABASE_URL + Razorpay keys from the owner before it can go live.
 - GoDaddy: owns `artblush.in` (registrar; DNS hosted at GoDaddy nameservers
   ns47/ns48.domaincontrol.com — records point at Vercel, do NOT switch NS)
 - Instagram: `https://www.instagram.com/_artblush_` (linked in Footer + Contact)
-- Neon (Postgres): OWNER must create a project + DB, then provide DATABASE_URL
-- Razorpay: OWNER must create account, provide RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET
+- Neon (Postgres): configured — DATABASE_URL in `.env.local` + Vercel production
+  env. Schema pushed, 12 artworks seeded (8 saleable, placeholder prices).
+- Razorpay: TEST keys armed (RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET in `.env.local`
+  + Vercel production env as Secrets). Order creation + payment-signature verify
+  tested against the live test API. Webhook NOT yet registered on the Razorpay
+  dashboard (optional for now; the checkout modal handlers confirm payments.
+  If registering a webhook, set RAZORPAY_WEBHOOK_SECRET too).
 
 ## Domain / DNS (GoDaddy)
 
@@ -96,10 +102,9 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 
 ## Placeholder / TODO (phase-gating)
 
-- [ ] OWNER: create Neon project → commit DATABASE_URL to Vercel env + .env.local
-- [ ] OWNER: create Razorpay account → set RAZORPAY_KEY_ID/SECRET (+ webhook secret)
-- [ ] Configure Razorpay webhook to point at https://www.artblush.in/api/razorpay/webhook (payment.captured)
-- [ ] Confirm/replace placeholder artwork prices before real launch
+- [ ] Swap placeholder artwork prices for real studio pricing before real-money launch
+- [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
+- [ ] Replace LIVE Razorpay keys when going into production
 - [ ] Replace contact email placeholder
 - [ ] Replace Unsplash artwork images with real ArtBlush art
 - [ ] og:image for social previews (needs a real artwork asset)

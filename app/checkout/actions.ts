@@ -4,7 +4,10 @@ import { eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
-import { createRazorpayOrder } from "@/lib/razorpay/server";
+import {
+  createRazorpayOrder,
+  verifyPaymentSignature,
+} from "@/lib/razorpay/server";
 
 export interface CheckoutInput {
   name: string;
@@ -40,6 +43,10 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
   }
 
   const totalPaise = cartTotal(lines);
+  if (totalPaise < 100) {
+    throw new Error("Order total is below the ₹1 minimum for online payment.");
+  }
+
   const receipt = `artblush-${Date.now()}`;
 
   const order = await createRazorpayOrder({
@@ -89,15 +96,33 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
   };
 }
 
-/** Marks the DB order paid + clears the cart (client-facing confirmation). */
+/**
+ * Confirms a payment from the checkout modal. Server-side HMAC verification
+ * of the Razorpay signature happens first — the order is only marked paid
+ * (and the cart cleared) when the signature is valid.
+ */
 export async function confirmPaidOrder({
+  razorpayOrderId,
   razorpayPaymentId,
+  signature,
   dbOrderId,
 }: {
+  razorpayOrderId: string;
   razorpayPaymentId: string;
+  signature: string;
   dbOrderId: string;
 }) {
-  if (!isDatabaseConfigured()) return { ok: false };
+  if (!isDatabaseConfigured()) return { ok: false, error: "Payments are not configured yet." };
+
+  const valid = verifyPaymentSignature({
+    razorpayOrderId,
+    razorpayPaymentId,
+    signature,
+  });
+  if (!valid) {
+    return { ok: false, error: "Payment signature verification failed." };
+  }
+
   await getDb()
     .update(orders)
     .set({
@@ -107,7 +132,7 @@ export async function confirmPaidOrder({
     })
     .where(eq(orders.id, dbOrderId));
   await clearCart();
-  return { ok: true };
+  return { ok: true, error: null };
 }
 
 /** Fetches an order for the success page. */

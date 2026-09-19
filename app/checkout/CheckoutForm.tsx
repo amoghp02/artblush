@@ -54,17 +54,30 @@ export default function CheckoutForm({ totalPaise }: CheckoutFormProps) {
           postalCode: String(form.get("postalCode")),
         });
 
-        await openRazorpay(result);
+        await openRazorpay(result, {
+          name: String(form.get("name")),
+          email: String(form.get("email")),
+          phone: String(form.get("phone")),
+        });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong. Try again.");
       }
     });
   }
 
-  function openRazorpay(result: Awaited<ReturnType<typeof createCheckoutOrder>>) {
+  function openRazorpay(
+    result: Awaited<ReturnType<typeof createCheckoutOrder>>,
+    prefill: { name: string; email: string; phone: string },
+  ) {
     return new Promise<void>((resolve) => {
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onerror = () => {
+        setError(
+          "Unable to load the payment gateway. Check your connection and try again.",
+        );
+        resolve();
+      };
       script.onload = () => {
         setProcessing(true);
         const checkout = new window.Razorpay!({
@@ -74,11 +87,20 @@ export default function CheckoutForm({ totalPaise }: CheckoutFormProps) {
           currency: result.currency,
           name: "ArtBlush",
           description: "ArtBlush artwork purchase",
+          prefill,
           handler: async (response: RazorpaySuccessResponse) => {
-            await confirmPaidOrder({
+            const confirmed = await confirmPaidOrder({
+              razorpayOrderId: String(response.razorpay_order_id),
               razorpayPaymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
               dbOrderId: result.dbOrderId,
             });
+            if (!confirmed.ok) {
+              setProcessing(false);
+              setError(confirmed.error ?? "Could not confirm your payment.");
+              resolve();
+              return;
+            }
             window.dispatchEvent(new Event("cart-updated"));
             router.push(
               `/checkout/success?order=${result.dbOrderId}&payment=${response.razorpay_payment_id}`,
