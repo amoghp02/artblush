@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createCheckoutOrder, confirmPaidOrder } from "./actions";
 
 declare global {
@@ -24,12 +25,13 @@ interface RazorpaySuccessResponse {
 
 interface CheckoutFormProps {
   totalPaise: number;
+  user: { name: string; email: string; phone: string | null };
 }
 
 const inputClasses =
   "w-full border-b border-foreground/15 bg-transparent py-3 text-base text-foreground placeholder:text-foreground/35 transition-colors focus:border-accent focus:outline-none";
 
-export default function CheckoutForm({ totalPaise }: CheckoutFormProps) {
+export default function CheckoutForm({ totalPaise, user }: CheckoutFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -137,19 +139,19 @@ export default function CheckoutForm({ totalPaise }: CheckoutFormProps) {
             <label htmlFor="name" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               Name *
             </label>
-            <input id="name" name="name" type="text" required autoComplete="name" className={inputClasses} />
+            <input id="name" name="name" type="text" required autoComplete="name" defaultValue={user.name} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="email" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               Email *
             </label>
-            <input id="email" name="email" type="email" required autoComplete="email" className={inputClasses} />
+            <input id="email" name="email" type="email" required autoComplete="email" defaultValue={user.email} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="phone" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               Phone *
             </label>
-            <input id="phone" name="phone" type="tel" required autoComplete="tel" className={inputClasses} />
+            <input id="phone" name="phone" type="tel" required autoComplete="tel" defaultValue={user.phone ?? ""} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="addressLine1" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
@@ -192,6 +194,13 @@ export default function CheckoutForm({ totalPaise }: CheckoutFormProps) {
           {error}
         </p>
       )}
+
+      <p className="text-xs text-foreground/50">
+        Signed in as {user.email} ·{" "}
+        <Link href="/account" className="text-accent underline-offset-4 hover:underline">
+          Account
+        </Link>
+      </p>
 
       <button
         type="submit"

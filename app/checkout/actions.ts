@@ -1,9 +1,11 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
+import { getCurrentUser } from "@/lib/auth/session";
 import {
   createRazorpayOrder,
   verifyPaymentSignature,
@@ -30,9 +32,9 @@ export interface CheckoutResult {
 
 /** Creates a Razorpay order + database order from the current cart. */
 export async function createCheckoutOrder(input: CheckoutInput): Promise<CheckoutResult> {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Payments are not configured yet.");
-  }
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=%2Fcheckout");
+
   if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
     throw new Error("Payments are not configured yet.");
   }
@@ -59,6 +61,7 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
   const dbOrder = await getDb()
     .insert(orders)
     .values({
+      userId: user.id,
       razorpayOrderId: order.id,
       amount: order.amount,
       currency: order.currency,

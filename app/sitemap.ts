@@ -3,7 +3,16 @@ import { getArtworks } from "@/lib/data";
 
 const baseUrl = "https://www.artblush.in";
 
-const staticRoutes = ["", "/portfolio", "/about", "/contact", "/cart", "/checkout"].map(
+const staticRoutes = [
+  "",
+  "/portfolio",
+  "/about",
+  "/contact",
+  "/cart",
+  "/checkout",
+  "/login",
+  "/signup",
+].map(
   (route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),

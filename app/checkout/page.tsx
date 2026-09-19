@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Reveal from "@/components/Reveal";
+import { requireUser } from "@/lib/auth/session";
 import { getCartLines, cartTotal } from "@/lib/cart/server";
 import CheckoutForm from "./CheckoutForm";
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
+  const user = await requireUser("/checkout");
   const lines = await getCartLines();
   const total = cartTotal(lines);
 
@@ -30,7 +32,7 @@ export default async function CheckoutPage() {
 
       <div className="mt-14 grid gap-14 lg:grid-cols-[1.2fr_0.8fr] lg:gap-20">
         <Reveal>
-          <CheckoutForm totalPaise={total} />
+          <CheckoutForm totalPaise={total} user={user} />
         </Reveal>
 
         <Reveal delay={100}>
