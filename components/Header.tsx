@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import CartNavLink from "./CartNavLink";
 
 const navLinks = [
   { label: "Portfolio", href: "/portfolio" },
@@ -69,18 +70,22 @@ export default function Header() {
               →
             </span>
           </Link>
+          <CartNavLink />
         </nav>
 
-        <button
-          type="button"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          className="inline-flex items-center justify-center p-2 text-foreground md:hidden"
-        >
-          {menuOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
-        </button>
+        <div className="flex items-center gap-4 md:hidden">
+          <CartNavLink />
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="inline-flex items-center justify-center p-2 text-foreground"
+          >
+            {menuOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
@@ -151,6 +156,13 @@ function MobileMenu({
           className="mt-4 inline-flex items-center gap-2 border-t border-foreground/10 pt-6 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
         >
           Explore Art →
+        </Link>
+        <Link
+          href="/cart"
+          onClick={onNavigate}
+          className="inline-flex items-center gap-2 pt-3 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
+        >
+          Cart
         </Link>
       </nav>
     </div>

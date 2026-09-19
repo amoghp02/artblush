@@ -15,6 +15,9 @@ export interface Artwork {
   story: string;
   status: Status;
   featured?: boolean;
+  price?: number;
+  currency?: string;
+  saleable?: boolean;
 }
 
 const images = {

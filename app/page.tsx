@@ -6,7 +6,7 @@ import ArtworkCard from "@/components/ArtworkCard";
 import ProcessSection from "@/components/ProcessSection";
 import CTASection from "@/components/CTASection";
 import ArtworkImage from "@/components/ArtworkImage";
-import { getFeaturedArtworks, artworks } from "@/lib/artworks";
+import { getFeaturedArtworks, getArtworks } from "@/lib/data";
 
 const processSteps = [
   {
@@ -31,8 +31,9 @@ const processSteps = [
   },
 ];
 
-export default function HomePage() {
-  const featured = getFeaturedArtworks(6);
+export default async function HomePage() {
+  const featured = await getFeaturedArtworks(6);
+  const artworks = await getArtworks();
   const hero = artworks[0];
 
   return (

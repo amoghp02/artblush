@@ -3,15 +3,19 @@
 import { useMemo, useState } from "react";
 import Reveal from "@/components/Reveal";
 import ArtworkGrid from "@/components/ArtworkGrid";
-import { artworks, categories, type Category } from "@/lib/artworks";
+import { categories, type Category, type Artwork } from "@/lib/artworks";
 
-export default function PortfolioGallery() {
+interface PortfolioGalleryProps {
+  artworks: Artwork[];
+}
+
+export default function PortfolioGallery({ artworks }: PortfolioGalleryProps) {
   const [active, setActive] = useState<Category | "all">("all");
 
   const filtered = useMemo(() => {
     if (active === "all") return artworks;
     return artworks.filter((art) => art.categories.includes(active));
-  }, [active]);
+  }, [active, artworks]);
 
   return (
     <>

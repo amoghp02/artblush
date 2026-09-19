@@ -32,7 +32,20 @@ export default function ArtworkCard({ artwork, priority = false }: ArtworkCardPr
           {artwork.year}
         </p>
       </div>
-      <p className="mt-0.5 text-xs text-foreground/55">{artwork.medium}</p>
+      <p className="mt-0.5 text-xs text-foreground/55">
+        {artwork.medium}
+        {artwork.saleable && artwork.price != null && (
+          <span className="ml-3 text-foreground/80">
+            ·
+            {" "}
+            {new Intl.NumberFormat("en-IN", {
+              style: "currency",
+              currency: "INR",
+              maximumFractionDigits: 0,
+            }).format(artwork.price / 100)}
+          </span>
+        )}
+      </p>
     </Link>
   );
 }

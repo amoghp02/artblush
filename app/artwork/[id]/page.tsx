@@ -6,13 +6,19 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import ButtonLink from "@/components/ButtonLink";
 import ArtworkCard from "@/components/ArtworkCard";
-import { getArtwork, getRelatedArtworks, artworks } from "@/lib/artworks";
+import AddToCartButton from "@/components/AddToCartButton";
+import {
+  getArtwork,
+  getRelatedArtworks,
+  getArtworks,
+} from "@/lib/data";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const artworks = await getArtworks();
   return artworks.map((art) => ({ id: art.id }));
 }
 
@@ -20,7 +26,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const artwork = getArtwork(id);
+  const artwork = await getArtwork(id);
   if (!artwork) return {};
   return {
     title: `${artwork.title} — ArtBlush`,
@@ -30,10 +36,10 @@ export async function generateMetadata({
 
 export default async function ArtworkPage({ params }: PageProps) {
   const { id } = await params;
-  const artwork = getArtwork(id);
+  const artwork = await getArtwork(id);
   if (!artwork) notFound();
 
-  const related = getRelatedArtworks(id);
+  const related = await getRelatedArtworks(id);
 
   const details = [
     { label: "Medium", value: artwork.medium },
@@ -115,24 +121,48 @@ export default async function ArtworkPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Enquire */}
+      {/* Buy / Enquire */}
       <section className="border-y border-foreground/10 bg-[#efe9dc]">
-        <div className="mx-auto max-w-[1400px] px-5 py-20 text-center sm:px-8 md:px-10 md:py-24">
-          <Reveal>
-            <h2 className="font-display text-3xl font-light text-foreground sm:text-4xl">
-              Interested in this artwork?
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-foreground/60">
-              {artwork.status === "Available"
-                ? "Ask us anything about this piece — availability, shipping, or the story behind it."
-                : "This piece is already spoken for, but commissions are always open. Tell us about your idea."}
-            </p>
-            <div className="mt-8">
-              <ButtonLink href="/contact" variant="outline">
-                Enquire About Artwork →
-              </ButtonLink>
-            </div>
-          </Reveal>
+        <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 md:px-10 md:py-24">
+          {artwork.saleable && artwork.price != null ? (
+            <Reveal>
+              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
+                <div className="flex-1 border border-foreground/10 bg-background p-8 sm:p-10">
+                  <h2 className="font-display text-3xl font-light text-foreground sm:text-4xl">
+                    Own this artwork
+                  </h2>
+                  <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-foreground/60">
+                    Each piece is one-of-one and ships framed by the studio within 7–10
+                    days. Add it to your cart and check out securely.
+                  </p>
+                  <div className="mt-8 flex justify-center">
+                    <AddToCartButton
+                      artworkId={artwork.id}
+                      price={artwork.price}
+                      currency={artwork.currency}
+                      title={artwork.title}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ) : (
+            <Reveal>
+              <h2 className="text-center font-display text-3xl font-light text-foreground sm:text-4xl">
+                Interested in this artwork?
+              </h2>
+              <p className="mx-auto mt-4 max-w-md text-center text-sm leading-relaxed text-foreground/60">
+                {artwork.status === "Available"
+                  ? "Ask us anything about this piece — availability, shipping, or the story behind it."
+                  : "This piece is already spoken for, but commissions are always open. Tell us about your idea."}
+              </p>
+              <div className="mt-8 flex justify-center">
+                <ButtonLink href="/contact" variant="outline">
+                  Enquire About Artwork →
+                </ButtonLink>
+              </div>
+            </Reveal>
+          )}
         </div>
       </section>
 
