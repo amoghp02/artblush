@@ -143,8 +143,8 @@ export default async function HomePage() {
             <div className="relative">
               <div className="relative overflow-hidden pb-[72%] bg-[#e8e2d3]">
                 <ArtworkImage
-                  src="photo-1513364776144-60967b0f800f"
-                  alt="A hand at work over a sketch, with pencil strokes and paper"
+                  src="/portfolio-photos/pensive.jpg"
+                  alt="A charcoal portrait study resting on the studio table, mid-thought"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
               </div>

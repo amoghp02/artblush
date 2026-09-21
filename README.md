@@ -21,7 +21,7 @@ original artwork brand.
 npm install
 npm run dev           # development — http://localhost:3000
 npm run db:push       # push schema to Neon (needs DATABASE_URL)
-npm run db:seed       # seed the 12 artworks (needs DATABASE_URL)
+npm run db:seed       # seed the 8 artworks (needs DATABASE_URL)
 npm run build         # production build
 npm run start         # serve the production build
 npm run lint          # ESLint
@@ -66,7 +66,7 @@ components/
 db/
   schema.ts             artworks, cart_items, orders, order_items
   index.ts              Lazy Neon client (getDb)
-  seed.ts               Seeds the 12 artworks (placeholder prices)
+  seed.ts               Seeds the 8 artworks (placeholder prices)
 lib/
   artworks.ts           Static artwork source of truth (fallback)
   data.ts               Data seam — DB when DATABASE_URL set, else static
@@ -104,14 +104,17 @@ Prices are stored in **paise** (Razorpay convention); the UI divides by 100.
 at build time — no extra wiring needed for new entries. Page data is served from
 Postgres when `DATABASE_URL` is configured, falling back to the static array so
 builds and read-only browsing work without a database. Run `db:push` + `db:seed`
-once to populate the 12 artworks.
+once to populate the 8 artworks.
 
-## Placeholder images
+## Artwork images
 
-Artwork photos are temporary **Unsplash** images rendered through a monochrome
-grayscale treatment (`components/ArtworkImage.tsx`) so they read as graphite/charcoal
-studies. Replace the `image` values in `lib/artworks.ts` with real ArtBlush artwork
-when ready — swap the files into `public/` or a CDN and update the URL.
+Artwork photos are the owner's real pieces, served from `public/portfolio-photos/`
+(via `components/ArtworkImage.tsx` with `next/image`). The `image` value on each
+artwork in `lib/artworks.ts` is a local path like `/portfolio-photos/first-smile.png`.
+To add a new piece: drop the photo in `assets/portfolio-photos/`, rename it to the
+artwork-slug + extension, copy it into `public/portfolio-photos/`, add the artwork
+entry to `lib/artworks.ts`, then wipe + re-seed the DB (`DELETE FROM artworks; npm run db:seed`)
+so image paths and pricing stay in sync.
 
 Contact details, social links, and the `metadataBase` / sitemap host in
 `app/layout.tsx` and `app/sitemap.ts` are placeholders — replace them before launch.
@@ -133,6 +136,5 @@ webhook to `https://www.artblush.in/api/razorpay/webhook` (payment.captured).
 
 ## Future phases (intentionally not built)
 
-- Phase 2b: Customer accounts, order history, shipping
 - Phase 3: Admin dashboard, orders, inventory, commission management
-- Phase 4: Commission builder, progress tracking, certificates, wishlist, reviews
+- Phase 4: Commission builder, progress tracking, certificates, reviews

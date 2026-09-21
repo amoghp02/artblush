@@ -10,27 +10,13 @@ if (!connection) {
 
 const db = drizzle({ connection, schema: { artworks } });
 
-// Placeholder-priced artworks. Prices are in PAISE (Razorpay convention).
-// Only artworks marked saleable appear in the buy-now flow. Tune these
-// before going live — they are stand-ins, not studio pricing.
-const placeholderPricing: Record<string, { price: number; saleable: boolean }> = {
-  "quiet-gaze": { price: 450000, saleable: true },        // ₹4,500
-  "the-old-soul": { price: 550000, saleable: true },      // ₹5,500
-  "untitled-study": { price: 350000, saleable: true },    // ₹3,500
-  "monochrome-memory": { price: 400000, saleable: true }, // ₹4,000
-  "portrait-in-silence": { price: 600000, saleable: true }, // ₹6,000
-  "study-in-charcoal": { price: 650000, saleable: true }, // ₹6,500
-  "between-light-and-dark": { price: 450000, saleable: true }, // ₹4,500
-  "between-moments": { price: 550000, saleable: false },  // commissioned
-  "her-portrait": { price: 700000, saleable: true },      // ₹7,000
-  "eyes-that-remember": { price: 650000, saleable: false }, // commissioned
-  "stillness": { price: 300000, saleable: false },        // private collection
-  "borrowed-time": { price: 600000, saleable: false },    // commissioned
-};
-
+// Prices live on the Artwork objects in `lib/artworks.ts` (PAISE, Razorpay
+// convention). Placeholder studio pricing — tune before going live.
 async function main() {
   const rows = staticArtworks.map((art) => {
-    const pricing = placeholderPricing[art.id] ?? { price: 0, saleable: false };
+    const pricing = art.saleable && art.price != null
+      ? { price: art.price, saleable: true }
+      : { price: 0, saleable: false };
     return {
       id: art.id,
       title: art.title,

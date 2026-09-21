@@ -13,13 +13,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Hand-drawn portrait / charcoal art brand. 'Art, Drawn With Feeling'. Read this
 before making any changes; update it as the project evolves.
 
-## Status: Phase 2 LIVE + customer accounts + modern UX DEPLOYED
+## Status: LIVE with real portfolio photos + customer accounts + modern UX DEPLOYED
 
 Phase 1 (static premium gallery) is LIVE. Phase 2 marketplace (Neon/Drizzle catalog,
-cookie cart, Razorpay Standard Checkout) + customer accounts are fully deployed.
-Login is REQUIRED for checkout. A modern UX pass is also live: wishlist, account
-avatar menu, toasts, checkout steps, order timeline, back-to-top, share, testimonials.
-Razorpay TEST keys are armed — real-money launch needs live keys + real pricing.
+cookie cart, Razorpay Standard Checkout) + customer accounts + a modern UX pass
+(wishlist, avatar menu, toasts, checkout steps, order timeline, back-to-top, share,
+testimonials) are fully deployed. The catalog now uses the owner's REAL artwork
+photos (8 pieces, all saleable). Login is REQUIRED for checkout. Razorpay TEST keys
+are armed — real-money launch needs live keys + real studio pricing.
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -37,7 +38,7 @@ Razorpay TEST keys are armed — real-money launch needs live keys + real pricin
   ns47/ns48.domaincontrol.com — records point at Vercel, do NOT switch NS)
 - Instagram: `https://www.instagram.com/_artblush_` (linked in Footer + Contact)
 - Neon (Postgres): configured — DATABASE_URL in `.env.local` + Vercel production
-  env. Schema pushed, 12 artworks seeded (8 saleable, placeholder prices).
+  env. Schema pushed, 8 artworks seeded (real photos, all saleable).
 - Razorpay: TEST keys armed (RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET in `.env.local`
   + Vercel production env as Secrets). Order creation + payment-signature verify
   tested against the live test API. Webhook NOT yet registered on the Razorpay
@@ -52,6 +53,15 @@ Razorpay TEST keys are armed — real-money launch needs live keys + real pricin
 
 ## Phase 2 data/architecture
 
+- **Catalog**: 8 REAL artworks (owner's own photos), all saleable at placeholder
+  studio pricing (₹4,500–7,000). Source list: `lib/artworks.ts` (ids: laugh-lines,
+  those-eyes-those-curls, first-smile, pure-delight, beneath-the-skin, the-rider,
+  with-a-bow, pensive). Photos live in `/public/portfolio-photos/*` and are stored
+  in the DB `artworks.image` as local paths (`/portfolio-photos/<id>.png|jpg`).
+  `components/ArtworkImage.tsx` renders local paths with `next/image` (no grayscale
+  filter, no remote patterns in next.config). `assets/portfolio-photos/` holds the
+  raw uploads (copy new photos there → rename to the artwork id slug → copy into
+  `public/portfolio-photos/` → update DB row if id/order changes).
 - **Schema** `db/schema.ts`: `artworks`, `cart_items` (unique session+artwork),
   `wishlist_items` (unique session+artwork), `users`, `sessions` (token PK, FK user,
   expiry), `orders` (FK `userId`), `order_items`.
@@ -130,8 +140,8 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 - [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
 - [ ] Replace LIVE Razorpay keys when going into production
 - [ ] Replace contact email placeholder
-- [ ] Replace Unsplash artwork images with real ArtBlush art
 - [ ] Replace placeholder Testimonials quotes with real collector words
-- [ ] og:image for social previews (needs a real artwork asset)
+- [ ] Add rest of the portfolio pieces once photographed (owner uploads to assets/portfolio-photos/)
+- [ ] og:image for social previews (use a real artwork asset)
 - [ ] Phase 3: customer accounts admin panel, order mgmt, commissions, shipping
 - [ ] Phase 4: commission builder, progress tracking, certificates

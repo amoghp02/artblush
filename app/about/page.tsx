@@ -40,14 +40,14 @@ export default function AboutPage() {
           <Reveal>
             <div className="relative overflow-hidden bg-[#e8e2d3] pb-[120%]">
               <ArtworkImage
-                src="photo-1513364776144-60967b0f800f"
-                alt="Artist photo — hands holding a pencil over a sketchbook"
+                src="/portfolio-photos/with-a-bow.png"
+                alt="A finished portrait study — graphite, signed and ready for its frame"
                 sizes="(min-width: 1024px) 45vw, 100vw"
               />
               <div className="pointer-events-none absolute inset-0 border border-foreground/5" />
             </div>
             <p className="mt-4 text-xs tracking-wide text-foreground/50">
-              Placeholder image — replace with a studio portrait soon.
+              A finished portrait — drawn by hand, signed by the artist.
             </p>
           </Reveal>
 
