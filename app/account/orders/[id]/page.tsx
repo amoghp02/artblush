@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import OrderStatusTimeline from "@/components/OrderStatusTimeline";
 import { requireUser } from "@/lib/auth/session";
 import {
   formatINR,
@@ -56,6 +57,15 @@ export default async function OrderDetailPage({ params }: PageProps) {
         >
           {orderStatusLabel(order.status)}
         </span>
+      </div>
+
+      <div className="mt-10 rounded-sm border border-foreground/10 bg-[#efe9dc] p-8">
+        <h3 className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/45">
+          Order status
+        </h3>
+        <div className="mt-6">
+          <OrderStatusTimeline status={order.status} />
+        </div>
       </div>
 
       <div className="mt-10 grid gap-10 sm:grid-cols-2">

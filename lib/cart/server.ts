@@ -13,7 +13,7 @@ export interface CartLine {
   quantity: number;
 }
 
-async function getOrCreateSessionId(): Promise<string> {
+export async function getOrCreateSessionId(): Promise<string> {
   const store = await cookies();
   const existing = store.get(CART_COOKIE)?.value;
   if (existing) return existing;
@@ -28,7 +28,7 @@ async function getOrCreateSessionId(): Promise<string> {
   return id;
 }
 
-async function getSessionId(): Promise<string | null> {
+export async function getSessionId(): Promise<string | null> {
   const store = await cookies();
   return store.get(CART_COOKIE)?.value ?? null;
 }

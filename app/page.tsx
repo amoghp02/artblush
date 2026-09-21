@@ -5,6 +5,7 @@ import ButtonLink from "@/components/ButtonLink";
 import ArtworkCard from "@/components/ArtworkCard";
 import ProcessSection from "@/components/ProcessSection";
 import CTASection from "@/components/CTASection";
+import Testimonials from "@/components/Testimonials";
 import ArtworkImage from "@/components/ArtworkImage";
 import { getFeaturedArtworks, getArtworks } from "@/lib/data";
 
@@ -154,6 +155,9 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* Testimonials */}
+      <Testimonials />
 
       {/* Custom artwork */}
       <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:px-10 md:py-32">

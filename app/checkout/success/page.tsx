@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import ButtonLink from "@/components/ButtonLink";
+import CheckoutSteps from "@/components/CheckoutSteps";
 import { getOrderById } from "../actions";
 
 export const metadata: Metadata = {
@@ -31,6 +32,10 @@ export default async function CheckoutSuccessPage({
           A confirmation has been sent to your email. The studio will reach out
           within 1–2 days with shipping details for your artwork.
         </p>
+
+        <div className="mx-auto mt-10 max-w-xl">
+          <CheckoutSteps current={2} />
+        </div>
 
         <div className="mx-auto mt-12 max-w-md border border-foreground/10 bg-[#efe9dc] p-8 text-left">
           <dl className="space-y-3 text-sm">

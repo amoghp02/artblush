@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import ButtonLink from "@/components/ButtonLink";
+import CheckoutSteps from "@/components/CheckoutSteps";
 import { getCartLines, cartTotal } from "@/lib/cart/server";
 import CartLineControls from "./CartLineControls";
 
@@ -50,6 +51,9 @@ export default async function CartPage() {
         <h1 className="font-display text-4xl leading-[1.08] font-light text-foreground sm:text-5xl md:text-6xl">
           Your selection.
         </h1>
+        <div className="mt-8 max-w-xl">
+          <CheckoutSteps current={0} />
+        </div>
       </Reveal>
 
       <div className="mt-14 grid gap-14 lg:grid-cols-[1.4fr_0.6fr] lg:gap-20">

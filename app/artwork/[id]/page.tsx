@@ -7,6 +7,8 @@ import SectionHeading from "@/components/SectionHeading";
 import ButtonLink from "@/components/ButtonLink";
 import ArtworkCard from "@/components/ArtworkCard";
 import AddToCartButton from "@/components/AddToCartButton";
+import WishlistButton from "@/components/WishlistButton";
+import ShareLinks from "@/components/ShareLinks";
 import {
   getArtwork,
   getRelatedArtworks,
@@ -96,6 +98,10 @@ export default async function ArtworkPage({ params }: PageProps) {
                   ))}
                 </dl>
               </div>
+
+              <div className="mt-8">
+                <ShareLinks title={artwork.title} />
+              </div>
             </div>
           </Reveal>
         </div>
@@ -142,6 +148,9 @@ export default async function ArtworkPage({ params }: PageProps) {
                       currency={artwork.currency}
                       title={artwork.title}
                     />
+                  </div>
+                  <div className="mt-4 flex justify-center">
+                    <WishlistButton artworkId={artwork.id} title={artwork.title} />
                   </div>
                 </div>
               </div>

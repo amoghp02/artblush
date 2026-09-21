@@ -73,6 +73,29 @@ export const cartItems = pgTable(
   },
 );
 
+export const wishlistItems = pgTable(
+  "wishlist_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sessionId: text("session_id").notNull(),
+    artworkId: text("artwork_id")
+      .notNull()
+      .references(() => artworks.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      sessionIdx: index("wishlist_session_idx").on(table.sessionId),
+      sessionArtworkIdx: uniqueIndex("wishlist_session_artwork_idx").on(
+        table.sessionId,
+        table.artworkId,
+      ),
+    };
+  },
+);
+
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
@@ -171,3 +194,4 @@ export type OrderRow = typeof orders.$inferSelect;
 export type OrderItemRow = typeof orderItems.$inferSelect;
 export type UserRow = typeof users.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
+export type WishlistItemRow = typeof wishlistItems.$inferSelect;

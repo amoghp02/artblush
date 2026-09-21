@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { addToCartAction } from "@/lib/cart/actions";
+import { toast } from "@/lib/toast";
 
 interface AddToCartButtonProps {
   artworkId: string;
@@ -33,6 +34,7 @@ export default function AddToCartButton({
       if (res.ok) {
         setAdded(true);
         window.dispatchEvent(new Event("cart-updated"));
+        toast(`Added "${title}" to your cart`, "success");
         setTimeout(() => setAdded(false), 2000);
       }
     });

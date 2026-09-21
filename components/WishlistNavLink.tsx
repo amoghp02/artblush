@@ -2,35 +2,35 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
-import { getCartCountAction } from "@/lib/cart/actions";
+import { Heart } from "lucide-react";
+import { getWishlistIdsAction } from "@/lib/wishlist/actions";
 
-export default function CartNavLink() {
+export default function WishlistNavLink() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     async function refresh() {
-      const c = await getCartCountAction();
-      if (!cancelled) setCount(c);
+      const ids = await getWishlistIdsAction();
+      if (!cancelled) setCount(ids.length);
     }
     refresh();
-    window.addEventListener("cart-updated", refresh);
+    window.addEventListener("wishlist-updated", refresh);
     window.addEventListener("focus", refresh);
     return () => {
       cancelled = true;
-      window.removeEventListener("cart-updated", refresh);
+      window.removeEventListener("wishlist-updated", refresh);
       window.removeEventListener("focus", refresh);
     };
   }, []);
 
   return (
     <Link
-      href="/cart"
+      href="/wishlist"
       className="group relative inline-flex items-center gap-1.5 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground transition-colors hover:text-accent"
-      aria-label={`Cart, ${count} item${count === 1 ? "" : "s"}`}
+      aria-label={`Wishlist, ${count} item${count === 1 ? "" : "s"}`}
     >
-      <ShoppingBag size={18} strokeWidth={1.5} />
+      <Heart size={18} strokeWidth={1.5} />
       {count > 0 && (
         <span
         key={count}

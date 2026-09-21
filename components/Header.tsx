@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import CartNavLink from "./CartNavLink";
+import WishlistNavLink from "./WishlistNavLink";
+import AccountMenu from "./AccountMenu";
 
 const navLinks = [
   { label: "Portfolio", href: "/portfolio" },
   { label: "About", href: "/about" },
   { label: "Custom Art", href: "/contact" },
-  { label: "Account", href: "/account" },
 ];
 
 export default function Header() {
@@ -70,11 +71,15 @@ export default function Header() {
               →
             </span>
           </Link>
+          <WishlistNavLink />
           <CartNavLink />
+          <AccountMenu />
         </nav>
 
         <div className="flex items-center gap-4 md:hidden">
+          <WishlistNavLink />
           <CartNavLink />
+          <AccountMenu />
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
@@ -158,18 +163,18 @@ function MobileMenu({
           Explore Art →
         </Link>
         <Link
-          href="/cart"
+          href="/wishlist"
           onClick={onNavigate}
           className="inline-flex items-center gap-2 pt-3 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
         >
-          Cart
+          Wishlist
         </Link>
         <Link
-          href="/account"
+          href="/cart"
           onClick={onNavigate}
           className="inline-flex items-center gap-2 pb-2 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
         >
-          Account
+          Cart
         </Link>
       </nav>
     </div>

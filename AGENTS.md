@@ -13,12 +13,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Hand-drawn portrait / charcoal art brand. 'Art, Drawn With Feeling'. Read this
 before making any changes; update it as the project evolves.
 
-## Status: Phase 2 LIVE (buy-now flow) — checkout armed with Razorpay test keys
+## Status: Phase 2 LIVE + customer accounts + modern UX DEPLOYED
 
 Phase 1 (static premium gallery) is LIVE. Phase 2 marketplace (Neon/Drizzle catalog,
-cookie cart, Razorpay Standard Checkout) is fully deployed and the payment step is
-armed with TEST keys. Real-money orders require swapping in LIVE Razorpay keys +
-confirming real pricing.
+cookie cart, Razorpay Standard Checkout) + customer accounts are fully deployed.
+Login is REQUIRED for checkout. A modern UX pass is also live: wishlist, account
+avatar menu, toasts, checkout steps, order timeline, back-to-top, share, testimonials.
+Razorpay TEST keys are armed — real-money launch needs live keys + real pricing.
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -52,27 +53,50 @@ confirming real pricing.
 ## Phase 2 data/architecture
 
 - **Schema** `db/schema.ts`: `artworks`, `cart_items` (unique session+artwork),
-  `orders`, `order_items`. Prices stored in PAISE (Razorpay convention).
+  `wishlist_items` (unique session+artwork), `users`, `sessions` (token PK, FK user,
+  expiry), `orders` (FK `userId`), `order_items`.
+  Prices stored in PAISE (Razorpay convention).
+- **Auth** `lib/auth/` — custom, no third-party auth lib:
+  - `password.ts`: bcryptjs (hash cost 12, server-only)
+  - `session.ts`: DB-backed session token in `artblush_session` cookie (30-day TTL,
+    httpOnly/lax/secure-in-prod); `getCurrentUser`, `requireUser(next?)` (redirects).
+  - `actions.ts`: `signUp`/`login`/`logout`/`updateProfile` (form-action compatible,
+    returns `{error}` state, calls `redirect()` on success) using React `useActionState`.
+  - **Login is required for checkout** — `app/checkout/page.tsx` + `createCheckoutOrder`
+    guard via `requireUser`/`getCurrentUser`; the checkout form prefills the user.
+- **Account** `app/account/` (layout guards via `requireUser`, tabs in layout):
+  `/account` overview + recent orders, `/account/orders` history, `/account/orders/[id]`
+  detail, `/account/profile` name/phone edit (email immutable).
+  Order queries: `lib/orders.ts` (`getOrdersForUser`, `getOrderForUser`, status labels).
+- **Wishlist** `lib/wishlist/` + `/wishlist` page — session-cookie based (reuses the
+  cart session cookie `artblush_cart`, works for guests too). Heart button on
+  `ArtworkCard` + artwork detail; `component/WishlistButton.tsx` optimistic toggle +
+  dispatches `wishlist-updated` event (header badge listens). DB table `wishlist_items`.
+- **Modern UX components**: `AccountMenu` (avatar initials in header, dropdown:
+  dashboard/orders/profile/sign-out; reads `/api/me`, listens for `auth-updated`),
+  `Toaster` (Listens `artblush-toast` CustomEvent from `lib/toast.ts`; shown on
+  add-to-cart/wishlist/copied-link), `CheckoutSteps` (Bag → Details & Payment →
+  Confirmation on cart/checkout/success), `OrderStatusTimeline` (order detail),
+  `BackToTop` (root layout), `ShareLinks` (copy link / WhatsApp / native share on
+  artwork detail), `Testimonials` (home page — **placeholder quotes, replace before
+  launch**). Badge pop + toast keyframes live in `app/globals.css`.
+- **Razorpay** `lib/razorpay/server.ts`: order creation + signature verification.
+  `app/checkout/CheckoutForm.tsx` opens the checkout.js modal (created order via
+  server action, `confirmPaidOrder` verifies the payment signature server-side).
+  Webhook route at `app/api/razorpay/webhook`.
 - **DB access** `db/index.ts` (`getDb` lazy singleton, `isDatabaseConfigured()`);
-  `lib/data.ts` is a data seam — DB-backed when DATABASE_URL set, else falls back to
-  the static array in `lib/artworks.ts` so builds/deploy work without a DB.
-- **Cart** `lib/cart/server.ts` (cookie `artblush_cart`, UUID), actions in
-  `lib/cart/actions.ts`, Header badge `components/CartNavLink.tsx` (client,
-  listens for `cart-updated` window event; mutations dispatch it).
-- **Checkout** `app/checkout/`: page (server, reads cart) + `CheckoutForm.tsx`
-  (client, address → `createCheckoutOrder` action → Razorpay checkout.js modal →
-  `confirmPaidOrder` → redirect `/checkout/success`). Order stored as `created`,
-  webhook promotes to `paid`.
-- **Razorpay** `lib/razorpay/server.ts`: order creation (server-only secrets),
-  payment-signature verify, webhook-signature verify. Webhook route:
-  `app/api/razorpay/webhook/route.ts` (x-razorpay-signature HMAC check).
-- **Seed** `db/seed.ts` with placeholder prices (marked in-file as stand-ins).
-- Read-only pages still fall back to the static array when DB absent.
+  `lib/data.ts` falls back to the static array in `lib/artworks.ts` when no DB.
 
 ## Pages/routes (Phase 2 additions)
 
-- `/cart` (dynamic), `/checkout` (dynamic), `/checkout/success` (dynamic),
-  `/api/razorpay/webhook` (POST). sitemap updated with /cart + /checkout.
+- `/login`, `/signup` (searchParams `next` honored, action returns to it),
+  `/account` (+ `/orders`, `/orders/[id]`, `/profile`) — all login-guarded.
+- `/cart` (dynamic), `/checkout` (dynamic, login required), `/checkout/success`,
+  `/wishlist` (dynamic — reads the cart session cookie), `/api/me` (GET, session-aware),
+  `/api/razorpay/webhook` (POST). sitemap updated.
+- NOTE: root layout does NOT read the session — only protected pages do, so public
+  marketing routes stay prerenderable. If you add session reads to the root layout
+  everything becomes dynamic.
 
 ## Environment / toolchain on this machine
 
@@ -107,7 +131,7 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 - [ ] Replace LIVE Razorpay keys when going into production
 - [ ] Replace contact email placeholder
 - [ ] Replace Unsplash artwork images with real ArtBlush art
+- [ ] Replace placeholder Testimonials quotes with real collector words
 - [ ] og:image for social previews (needs a real artwork asset)
-- [ ] Phase 3: customer accounts, order history, admin dashboard, inventory,
-      commissions, shipping
-- [ ] Phase 4: commission builder, progress tracking, certificates, wishlist
+- [ ] Phase 3: customer accounts admin panel, order mgmt, commissions, shipping
+- [ ] Phase 4: commission builder, progress tracking, certificates
