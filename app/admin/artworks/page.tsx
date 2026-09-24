@@ -2,6 +2,7 @@ import Image from "next/image";
 import { requireAdmin } from "@/lib/auth/session";
 import { getAdminArtworks } from "@/lib/admin/artworks";
 import { updateArtworkAction } from "@/app/admin/actions";
+import { AdminFilters } from "@/app/admin/AdminFilters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +21,48 @@ export const dynamic = "force-dynamic";
 const selectClasses =
   "h-9 w-44 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
-export default async function AdminArtworksPage() {
+interface PageProps {
+  searchParams: Promise<{ status?: string; sort?: string }>;
+}
+
+export default async function AdminArtworksPage({ searchParams }: PageProps) {
   await requireAdmin();
+  const { status, sort } = await searchParams;
+
   const pieces = await getAdminArtworks();
+  let rows = pieces;
+
+  if (["Available", "Commissioned", "Private Collection"].includes(status ?? "")) {
+    rows = rows.filter((art) => art.status === status);
+  }
+
+  switch (sort) {
+    case "title_asc":
+      rows = [...rows].sort((a, b) => a.title.localeCompare(b.title));
+      break;
+    case "title_desc":
+      rows = [...rows].sort((a, b) => b.title.localeCompare(a.title));
+      break;
+    case "price_asc":
+      rows = [...rows].sort(
+        (a, b) => (a.price ?? Number.POSITIVE_INFINITY) - (b.price ?? Number.POSITIVE_INFINITY),
+      );
+      break;
+    case "price_desc":
+      rows = [...rows].sort(
+        (a, b) => (b.price ?? Number.NEGATIVE_INFINITY) - (a.price ?? Number.NEGATIVE_INFINITY),
+      );
+      break;
+    case "oldest":
+      rows = [...rows].sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      );
+      break;
+    default:
+      rows = [...rows].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
+  }
 
   return (
     <div className="space-y-6">
@@ -31,12 +71,36 @@ export default async function AdminArtworksPage() {
           Artworks
         </h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Shop state per piece. Setting status to{" "}
+          Shop state per piece — {rows.length} of {pieces.length}. Setting status
+          to{" "}
           <span className="font-medium text-foreground">Available</span> releases
           it for purchase (and relists it if it was marked sold); Committed /
           Private Collection takes it off sale.
         </p>
       </div>
+
+      <AdminFilters
+        fields={[
+          {
+            key: "status",
+            label: "Status",
+            options: [
+              { value: "Available", label: "Available" },
+              { value: "Commissioned", label: "Commissioned" },
+              { value: "Private Collection", label: "Private Collection" },
+            ],
+          },
+        ]}
+        sortKey="sort"
+        sortOptions={[
+          { value: "", label: "Newest first" },
+          { value: "oldest", label: "Oldest first" },
+          { value: "title_asc", label: "Title · A to Z" },
+          { value: "title_desc", label: "Title · Z to A" },
+          { value: "price_asc", label: "Price · low to high" },
+          { value: "price_desc", label: "Price · high to low" },
+        ]}
+      />
 
       <Table>
         <TableHeader>
@@ -47,7 +111,7 @@ export default async function AdminArtworksPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pieces.map((art) => (
+          {rows.map((art) => (
             <TableRow key={art.id} className="align-top">
               <TableCell>
                 <div className="flex items-center gap-4">
@@ -127,10 +191,10 @@ export default async function AdminArtworksPage() {
               </TableCell>
             </TableRow>
           ))}
-          {pieces.length === 0 && (
+          {rows.length === 0 && (
             <TableRow>
               <TableCell colSpan={3} className="py-10 text-center text-muted-foreground">
-                No artworks.
+                {status || sort ? "No artworks match these filters." : "No artworks."}
               </TableCell>
             </TableRow>
           )}

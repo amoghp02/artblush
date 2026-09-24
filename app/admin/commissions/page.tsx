@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { getCommissions } from "@/lib/admin/commissions";
 import { updateCommissionAction } from "@/app/admin/actions";
+import { AdminFilters } from "@/app/admin/AdminFilters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +20,38 @@ const statusVariant: Record<string, "default" | "secondary" | "outline" | "destr
 const selectClasses =
   "h-9 w-40 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
-export default async function AdminCommissionsPage() {
+interface PageProps {
+  searchParams: Promise<{ status?: string; type?: string; sort?: string }>;
+}
+
+const STATUS_KEYS = ["new", "contacted", "in_progress", "completed", "declined"];
+const STATUS_LABELS: Record<string, string> = {
+  new: "New",
+  contacted: "Contacted",
+  in_progress: "In progress",
+  completed: "Completed",
+  declined: "Declined",
+};
+
+export default async function AdminCommissionsPage({ searchParams }: PageProps) {
   await requireAdmin();
+  const { status, type, sort } = await searchParams;
+
   const list = await getCommissions();
+  const typeOptions = [...new Set(list.map((c) => c.enquiryType))]
+    .sort((a, b) => a.localeCompare(b));
+
+  let rows = list;
+  if (STATUS_KEYS.includes(status ?? "")) {
+    rows = rows.filter((c) => c.status === status);
+  }
+  if (type) {
+    rows = rows.filter((c) => c.enquiryType === type);
+  }
+  rows =
+    sort === "oldest"
+      ? [...rows].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      : [...rows].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <div className="space-y-6">
@@ -31,18 +61,47 @@ export default async function AdminCommissionsPage() {
         </h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Enquiries from the contact page — commissions, originals and general
-          questions. Work through them here.
+          questions. {rows.length} of {list.length} shown.
         </p>
       </div>
 
-      {list.length === 0 && (
-        <p className="rounded-md border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
-          No enquiries yet. They’ll appear here when someone uses the contact form.
+      <AdminFilters
+        fields={[
+          {
+            key: "status",
+            label: "Workflow status",
+            options: STATUS_KEYS.map((key) => ({
+              value: key,
+              label: STATUS_LABELS[key],
+            })),
+          },
+          ...(typeOptions.length > 1
+            ? [
+                {
+                  key: "type",
+                  label: "Enquiry type",
+                  options: typeOptions.map((t) => ({ value: t, label: t })),
+                },
+              ]
+            : []),
+        ]}
+        sortKey="sort"
+        sortOptions={[
+          { value: "", label: "Newest first" },
+          { value: "oldest", label: "Oldest first" },
+        ]}
+      />
+
+      {rows.length === 0 && (
+        <p className="rounded-md border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
+          {status || type
+            ? "No enquiries match these filters."
+            : "No enquiries yet. They’ll appear here when someone uses the contact form."}
         </p>
       )}
 
       <div className="space-y-3">
-        {list.map((comm) => (
+        {rows.map((comm) => (
           <div
             key={comm.id}
             className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm"

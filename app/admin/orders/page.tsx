@@ -5,6 +5,7 @@ import {
   getAdminOrderSummaries,
   shippingStatusLabel,
 } from "@/lib/admin/orders";
+import { AdminFilters } from "@/app/admin/AdminFilters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +19,35 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOrdersPage() {
+interface PageProps {
+  searchParams: Promise<{
+    payment?: string;
+    shipping?: string;
+    sort?: string;
+  }>;
+}
+
+export default async function AdminOrdersPage({ searchParams }: PageProps) {
   await requireAdmin();
-  const orders = await getAdminOrderSummaries();
+  const { payment, shipping, sort } = await searchParams;
+
+  const orders = await getAdminOrderSummaries({
+    paymentStatus: (["paid", "created", "failed", "refunded"] as const).includes(
+      payment as "paid",
+    )
+      ? (payment as "paid" | "created" | "failed" | "refunded")
+      : undefined,
+    shippingStatus: (
+      ["awaiting_shipment", "shipped", "delivered", "returned"] as const
+    ).includes(shipping as "shipped")
+      ? (shipping as "awaiting_shipment" | "shipped" | "delivered" | "returned")
+      : undefined,
+    sort: (["oldest", "amount_desc", "amount_asc"] as const).includes(
+      sort as "oldest",
+    )
+      ? (sort as "oldest" | "amount_desc" | "amount_asc")
+      : undefined,
+  });
 
   return (
     <div className="space-y-6">
@@ -29,9 +56,42 @@ export default async function AdminOrdersPage() {
           Orders
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {orders.length} order{orders.length === 1 ? "" : "s"} in total.
+          {orders.length} order{orders.length === 1 ? "" : "s"}
+          {payment || shipping ? " matching your filters." : " in total."}
         </p>
       </div>
+
+      <AdminFilters
+        fields={[
+          {
+            key: "payment",
+            label: "Payment",
+            options: [
+              { value: "paid", label: orderStatusLabel("paid") },
+              { value: "created", label: orderStatusLabel("created") },
+              { value: "failed", label: orderStatusLabel("failed") },
+              { value: "refunded", label: orderStatusLabel("refunded") },
+            ],
+          },
+          {
+            key: "shipping",
+            label: "Shipping",
+            options: [
+              { value: "awaiting_shipment", label: "Awaiting shipment" },
+              { value: "shipped", label: "Shipped" },
+              { value: "delivered", label: "Delivered" },
+              { value: "returned", label: "Returned" },
+            ],
+          },
+        ]}
+        sortKey="sort"
+        sortOptions={[
+          { value: "", label: "Newest first" },
+          { value: "oldest", label: "Oldest first" },
+          { value: "amount_desc", label: "Total · high to low" },
+          { value: "amount_asc", label: "Total · low to high" },
+        ]}
+      />
 
       <Table>
         <TableHeader>
@@ -93,7 +153,9 @@ export default async function AdminOrdersPage() {
                 colSpan={8}
                 className="py-10 text-center text-muted-foreground"
               >
-                No orders yet.
+                {payment || shipping
+                  ? "No orders match these filters."
+                  : "No orders yet."}
               </TableCell>
             </TableRow>
           )}

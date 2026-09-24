@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import type { OrderItemRow, OrderRow } from "@/db/schema";
@@ -13,12 +13,49 @@ export interface AdminOrderWithItems extends OrderRow {
   items: OrderItemRow[];
 }
 
-export async function getAdminOrderSummaries(): Promise<AdminOrderSummary[]> {
+export type OrderFilter = {
+  paymentStatus?: OrderRow["status"];
+  shippingStatus?: OrderRow["shippingStatus"];
+  sort?: "newest" | "oldest" | "amount_desc" | "amount_asc";
+};
+
+export function orderSortLabel(sort: string): string {
+  switch (sort) {
+    case "oldest":
+      return "Oldest first";
+    case "amount_desc":
+      return "Total · high to low";
+    case "amount_asc":
+      return "Total · low to high";
+    default:
+      return "Newest first";
+  }
+}
+
+export async function getAdminOrderSummaries(
+  filter: OrderFilter = {},
+): Promise<AdminOrderSummary[]> {
   if (!isDatabaseConfigured()) return [];
+
+  const conditions = [];
+  if (filter.paymentStatus) conditions.push(eq(orders.status, filter.paymentStatus));
+  if (filter.shippingStatus)
+    conditions.push(eq(orders.shippingStatus, filter.shippingStatus));
+
+  const orderBy =
+    filter.sort === "oldest"
+      ? asc(orders.createdAt)
+      : filter.sort === "amount_desc"
+        ? desc(orders.amount)
+        : filter.sort === "amount_asc"
+          ? asc(orders.amount)
+          : desc(orders.createdAt);
+
   const rows = await getDb()
     .select()
     .from(orders)
-    .orderBy(desc(orders.createdAt));
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(orderBy);
 
   if (rows.length === 0) return [];
 
