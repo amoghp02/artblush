@@ -183,8 +183,9 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   notification when the admin marks an order shipped, a studio notification on
   paid orders and new commissions. Never blocks payments/actions on email
   (Promise.allSettled / best-effort). Requires env RESEND_API_KEY + RESEND_FROM_EMAIL
-  (defaults to sandbox `onboarding@resend.dev`; verified sender/recipient needed
-  in the Resend dashboard until a domain is added).
+  (defaults to `ArtBlush <hello.artblush@gmail.com>`; the sender must be
+  verified in the Resend dashboard — Resend emails a confirmation link to the
+  gmail inbox).
 - **DB access** `db/index.ts` (`getDb` lazy singleton, `isDatabaseConfigured()`);
   `lib/data.ts` falls back to the static array in `lib/artworks.ts` when no DB.
 

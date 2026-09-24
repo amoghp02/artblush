@@ -60,10 +60,10 @@ export default function ContactPage() {
                   </dt>
                   <dd className="mt-2">
                     <a
-                      href="mailto:hello@artblush.example.com"
+                      href="mailto:hello.artblush@gmail.com"
                       className="text-base text-foreground transition-colors hover:text-accent"
                     >
-                      hello@artblush.example.com
+                      hello.artblush@gmail.com
                     </a>
                   </dd>
                 </div>

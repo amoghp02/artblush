@@ -7,7 +7,7 @@ const resend = process.env.RESEND_API_KEY
   : null;
 
 const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || "ArtBlush <onboarding@resend.dev>";
+  process.env.RESEND_FROM_EMAIL || "ArtBlush <hello.artblush@gmail.com>";
 const STUDIO_NOTIFY_EMAIL = process.env.ARTBLUSH_STUDIO_NOTIFY_EMAIL;
 
 export function isEmailConfigured(): boolean {

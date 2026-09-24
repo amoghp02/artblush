@@ -118,7 +118,8 @@ so image paths and pricing stay in sync.
 
 Contact details, social links, and the `metadataBase` / sitemap host in
 `app/layout.tsx` and `app/sitemap.ts` are placeholders — replace them before launch.
-Contact email `hello@artblush.example.com` is a placeholder.
+Response emails are sent from and studio enquiries go to
+`hello.artblush@gmail.com` (the studio's official address).
 
 ## Deployment
 
