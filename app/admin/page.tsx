@@ -88,7 +88,7 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="pb-2">
@@ -124,59 +124,61 @@ export default async function AdminDashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>Order</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Payment</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recent.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell>
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="font-medium text-foreground hover:text-accent hover:underline underline-offset-2"
-                      >
-                        #{order.id.slice(0, 8)}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {order.customerName}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatINR(order.amount)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          order.status === "paid"
-                            ? "default"
-                            : order.status === "created"
-                              ? "secondary"
-                              : "destructive"
-                        }
-                      >
-                        {orderStatusLabel(order.status)}
-                      </Badge>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[540px]">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Order</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead>Payment</TableHead>
                   </TableRow>
-                ))}
-                {recent.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="py-8 text-center text-muted-foreground"
-                    >
-                      No orders yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recent.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell>
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="font-medium text-foreground hover:text-accent hover:underline underline-offset-2"
+                        >
+                          #{order.id.slice(0, 8)}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {order.customerName}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatINR(order.amount)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            order.status === "paid"
+                              ? "default"
+                              : order.status === "created"
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
+                          {orderStatusLabel(order.status)}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {recent.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
+                        className="py-8 text-center text-muted-foreground"
+                      >
+                        No orders yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 

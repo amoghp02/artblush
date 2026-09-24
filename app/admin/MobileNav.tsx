@@ -29,7 +29,7 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-60 rounded-lg border border-border bg-card p-2 shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-2 w-64 max-h-[calc(100dvh-4rem)] overflow-y-auto rounded-lg border border-border bg-card p-2 shadow-lg">
           <nav aria-label="Admin" className="space-y-1">
             {tabs.map((tab) => (
               <AdminNav key={tab.href} item={tab} onClick={() => setOpen(false)} />

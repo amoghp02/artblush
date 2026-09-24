@@ -127,7 +127,7 @@ export default async function AdminCommissionsPage({ searchParams }: PageProps) 
                 </p>
               </div>
 
-              <form action={updateCommissionAction} className="flex w-64 shrink-0 flex-col gap-3 sm:w-72">
+              <form action={updateCommissionAction} className="flex w-full shrink-0 flex-col gap-3 sm:w-72">
                 <input type="hidden" name="id" value={comm.id} />
                 <div className="space-y-1">
                   <Label htmlFor={`status-${comm.id}`} className="text-xs text-muted-foreground">

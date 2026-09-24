@@ -102,16 +102,17 @@ export default async function AdminArtworksPage({ searchParams }: PageProps) {
         ]}
       />
 
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Piece</TableHead>
-            <TableHead>Shop details</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((art) => (
+      <div className="overflow-x-auto">
+        <Table className="min-w-[640px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Piece</TableHead>
+              <TableHead>Shop details</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((art) => (
             <TableRow key={art.id} className="align-top">
               <TableCell>
                 <div className="flex items-center gap-4">
@@ -198,8 +199,9 @@ export default async function AdminArtworksPage({ searchParams }: PageProps) {
               </TableCell>
             </TableRow>
           )}
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
