@@ -118,6 +118,7 @@ export async function sendOrderConfirmationEmail({
     await resend.emails.send({
       from: FROM_EMAIL,
       to,
+      replyTo: process.env.RESEND_REPLY_TO_EMAIL || "hello.artblush@gmail.com",
       subject: `Your ArtBlush order ${orderReference} is confirmed`,
       html,
     });
@@ -165,6 +166,7 @@ export async function sendPasswordResetEmail({
     await resend.emails.send({
       from: FROM_EMAIL,
       to,
+      replyTo: process.env.RESEND_REPLY_TO_EMAIL || "hello.artblush@gmail.com",
       subject: "Reset your ArtBlush password",
       html,
     });
@@ -215,6 +217,7 @@ export async function sendShipmentNotification({
     await resend.emails.send({
       from: FROM_EMAIL,
       to,
+      replyTo: process.env.RESEND_REPLY_TO_EMAIL || "hello.artblush@gmail.com",
       subject: `Your ArtBlush order ${orderReference} has shipped`,
       html,
     });
