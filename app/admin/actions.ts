@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { destroySession, requireAdmin } from "@/lib/auth/session";
 import { getDb } from "@/db";
 import { sessions } from "@/db/schema";
+import { revalidateStorefrontForArtworks } from "@/lib/revalidate-site";
 import { sendShipmentNotification } from "@/lib/email";
 import {
   getAdminOrder,
@@ -93,6 +94,7 @@ export async function updateArtworkAction(formData: FormData) {
       : Number(priceRupeesRaw);
   const pricePaise = priceRupees === null ? null : Math.round(priceRupees * 100);
   await updateArtwork({ id, pricePaise, saleable, status: status as "Available" | "Commissioned" | "Private Collection" });
+  revalidateStorefrontForArtworks([id]);
   revalidatePath("/admin/artworks");
   redirect("/admin/artworks");
 }

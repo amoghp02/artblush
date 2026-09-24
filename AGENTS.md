@@ -160,6 +160,12 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
 - **Commissions (Phase 3)**: `/contact` form POSTs via `app/contact/actions.ts`
   (`submitCommission`) into the `commissions` table + notifies the studio email
   (best-effort). Was previously a fake client-only form.
+- **CACHE RULE**: `/`, `/portfolio`, `/artwork/[id]`, `/sitemap.xml` are
+  statically prerendered at BUILD TIME. Any DB change to a piece's sold /
+  saleable / status (admin `/admin/artworks` Save, or `confirmPaidOrder` after a
+  payment) must call `revalidateStorefrontForArtworks(ids)` from
+  `lib/revalidate-site.ts` (revalidates /, /portfolio, /sitemap.xml + each
+  `/artwork/<id>`) or the storefront keeps showing stale buy buttons.
 - **Emails (Phase 2/3, wired)**: `lib/email.ts` (Resend) sends the customer an
   order confirmation (summary + shipping + order ref) on paid order, a shipment
   notification when the admin marks an order shipped, a studio notification on

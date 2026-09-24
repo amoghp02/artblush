@@ -6,6 +6,7 @@ import { getDb, isDatabaseConfigured } from "@/db";
 import { artworks, orderItems, orders, users } from "@/db/schema";
 import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidateStorefrontForArtworks } from "@/lib/revalidate-site";
 import {
   createRazorpayOrder,
   verifyPaymentSignature,
@@ -194,6 +195,7 @@ export async function confirmPaidOrder({
         updatedAt: new Date(),
       })
       .where(inArray(artworks.id, itemRows.map((item) => item.artworkId)));
+    revalidateStorefrontForArtworks(itemRows.map((item) => item.artworkId));
   }
 
   // Customer confirmation email + studio notification (never block payment on email).
