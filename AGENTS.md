@@ -114,6 +114,18 @@ are armed — real-money launch needs live keys + real studio pricing.
   marketing routes stay prerenderable. If you add session reads to the root layout
   everything becomes dynamic.
 
+## Commerce voice — "art first, price second"
+
+- NO prices on cards/grids (`ArtworkCard` shows title/year/medium only) and no sale
+  badges or "BUY NOW" shouts anywhere. Price appears once, quietly, inside the
+  "Own the original" purchase band on the artwork detail page — AFTER description
+  and story. Keep this order when editing: story → trust → purchase.
+- Artwork detail pages carry `VisualArtwork` + `Product` JSON-LD, per-page
+  Open Graph/twitter images (absolute URLs, metadataBase www.artblush.in), canonical
+  URLs, studio notes (one-of-one / signed & framed / provenance), prev/next
+  navigation, and related pieces. Default OG image for other pages is in
+  `app/layout.tsx` (uses `/portfolio-photos/pensive.jpg`).
+
 ## Environment / toolchain on this machine
 
 - Windows (PowerShell 5.1). Git 2.55 + GitHub CLI installed; note: git/gh may need

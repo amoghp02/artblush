@@ -36,17 +36,6 @@ export default function ArtworkCard({ artwork, priority = false }: ArtworkCardPr
         </div>
         <p className="mt-0.5 text-xs text-foreground/55">
           {artwork.medium}
-          {artwork.saleable && artwork.price != null && (
-            <span className="ml-3 text-foreground/80">
-              ·
-              {" "}
-              {new Intl.NumberFormat("en-IN", {
-                style: "currency",
-                currency: "INR",
-                maximumFractionDigits: 0,
-              }).format(artwork.price / 100)}
-            </span>
-          )}
         </p>
       </Link>
       <WishlistButton artworkId={artwork.id} title={artwork.title} variant="card" />

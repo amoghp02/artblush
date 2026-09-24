@@ -29,12 +29,15 @@ export const metadata: Metadata = {
       "Hand-drawn portraits and original artworks that turn meaningful moments into timeless pieces.",
     type: "website",
     siteName: "ArtBlush",
+    images: [{ url: "/portfolio-photos/pensive.jpg" }],
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
     title: "ArtBlush — Art, Drawn With Feeling",
     description:
       "Hand-drawn portraits and original artworks that turn meaningful moments into timeless pieces.",
+    images: ["/portfolio-photos/pensive.jpg"],
   },
 };
 
