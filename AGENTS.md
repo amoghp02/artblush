@@ -120,7 +120,16 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   `isAdminUser`. `requireAdmin()` in `lib/auth/session.ts` redirects guests to
   /login?next=/admin and non-admins to /account. `/api/me` returns `{user, isAdmin}`;
   the header avatar dropdown shows an "Admin" link for admins.
-- **ADMIN dashboard (Phase 3)** `app/admin/`:
+- **ADMIN dashboard (Phase 3)** `app/admin/` (its own ROOT layout):
+  - Route groups: the storefront lives in `app/(site)/` (its layout renders the
+    public Header/Footer and the full OG metadata); `app/admin/` has a SEPARATE
+    root `<html>/<body>` layout with NO public chrome — the admin host and the
+    storefront are visually and structurally independent. Admin pages use
+    shadcn/ui components (`components/ui/*` — button, card, input, label, table,
+    badge, separator, textarea, checkbox; `cn()` from `lib/utils.ts`). SITE
+    TOKENS ARE UNTOUCHED: shadcn palette is scoped via `.admin-shell` CSS vars
+    (globals.css), the ivory site is unaffected; admin root layout imports
+    `../globals.css` itself.
   - Subdomain `admin.artblush.in` is OPS-ONLY (see `proxy.ts`): only `/admin*`,
     `/login` (rewrites to the dark `/admin/login`), static files allowed — any other
     path (cart, portfolio, artworks, about, signup, wishlist…) 307-redirects back
