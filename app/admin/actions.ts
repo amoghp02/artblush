@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/session";
+import { eq } from "drizzle-orm";
+import { destroySession, requireAdmin } from "@/lib/auth/session";
+import { getDb } from "@/db";
+import { sessions } from "@/db/schema";
 import { sendShipmentNotification } from "@/lib/email";
 import {
   getAdminOrder,
@@ -109,4 +112,19 @@ export async function updateCommissionAction(formData: FormData) {
   });
   revalidatePath("/admin/commissions");
   redirect("/admin/commissions");
+}
+
+export async function adminLogoutAction() {
+  await destroySession();
+  redirect("/login");
+}
+
+export async function revokeAdminSessionAction(formData: FormData) {
+  await guard();
+  const id = str(formData, "id");
+  if (!id) return;
+
+  await getDb().delete(sessions).where(eq(sessions.id, id));
+  revalidatePath("/admin");
+  redirect("/admin");
 }

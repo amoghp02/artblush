@@ -121,14 +121,21 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   /login?next=/admin and non-admins to /account. `/api/me` returns `{user, isAdmin}`;
   the header avatar dropdown shows an "Admin" link for admins.
 - **ADMIN dashboard (Phase 3)** `app/admin/`:
-  - Subdomain: `admin.artblush.in` hosts the dashboard (see `proxy.ts`).
-    On the admin host, top-level paths (/, orders, artworks, commissions) rewrite
-    into `/admin/...`; the www host redirects any `/admin*` to the subdomain.
-    Admin pages get `X-Robots-Tag: noindex`; matcher keeps a second Vercel domain
-    (DNS via Vercel) pointing at the same deployment.
-  - `layout.tsx` guards all admin pages with `requireAdmin()`; tabs: Dashboard,
-    Orders, Artworks, Commissions. Server actions in `app/admin/actions.ts`
-    (each re-guards with requireAdmin).
+  - Subdomain `admin.artblush.in` is OPS-ONLY (see `proxy.ts`): only `/admin*`,
+    `/login` (rewrites to the dark `/admin/login`), static files allowed — any other
+    path (cart, portfolio, artworks, about, signup, wishlist…) 307-redirects back
+    to the dashboard. `www` still 307s any `/admin*` to the subdomain.
+  - Themed separately with **shadcn/ui** (scoped to `.admin-shell` CSS vars in
+    `app/globals.css` — the ivory storefront is untouched): dark zinc sidebar,
+    white neutral work area. The admin sign-in (`/admin/login`, dark `.admin-auth`)
+    is deliberately a different look from the storefront login.
+  - `layout.tsx` renders the sidebar shell ONLY when `getCurrentUser` is an admin;
+    browsers that aren't get the bare tree. Each admin page runs its own
+    `requireAdmin()` guard (login page is deliberately unguarded). Server actions
+    in `app/admin/actions.ts` re-guard with `requireAdmin`.
+  - `/admin` dashboard: stats cards, latest orders, "Active admin sessions" widget
+    (current signed-in admin sessions with per-row Revoke →
+    `revokeAdminSessionAction`; sessions come from `lib/admin/sessions.ts`).
   - `/admin` stats (orders, revenue, awaiting-shipment, sold, new commissions).
   - `/admin/orders` + `/admin/orders/[id]`: payment status + shipping status /
     tracking number updates. Marking "shipped" emails the customer (Resend).

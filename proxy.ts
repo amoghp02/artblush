@@ -12,18 +12,16 @@ export function proxy(req: NextRequest) {
     if (path.startsWith("/admin")) {
       return withNoIndex(NextResponse.next());
     }
-    // Flat conveniences on the admin host: / -> /admin, and the three sections.
-    // Everything else (login, signup, robots*, static files) serves normally.
-    if (
-      path === "/" ||
-      path.startsWith("/orders") ||
-      path.startsWith("/artworks") ||
-      path.startsWith("/commissions")
-    ) {
-      const dest = new URL("/admin/" + path.replace(/^\/+/, ""), url);
-      return withNoIndex(NextResponse.rewrite(dest));
+    if (path === "/login") {
+      // Themed admin sign-in lives at /admin/login.
+      return withNoIndex(NextResponse.rewrite(new URL("/admin/login", url)));
     }
-    return withNoIndex(NextResponse.next());
+    if (path === "/") {
+      return withNoIndex(NextResponse.rewrite(new URL("/admin", url)));
+    }
+    // Everything else — cart, portfolio, artworks, about, signup — is ops-only.
+    // Send it back to the dashboard.
+    return withNoIndex(NextResponse.redirect(new URL("/", url)));
   }
 
   if (isProd && path.startsWith("/admin") && host !== ADMIN_HOST) {
