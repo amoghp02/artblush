@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { login } from "@/lib/auth/actions";
 
 const inputClasses =
@@ -56,6 +57,14 @@ export default function LoginForm({ next }: { next: string }) {
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
+        </div>
+        <div className="mt-2 flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-foreground/50 underline-offset-4 transition-colors hover:text-accent hover:underline"
+          >
+            Forgot password?
+          </Link>
         </div>
       </div>
 

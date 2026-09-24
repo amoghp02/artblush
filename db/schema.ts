@@ -153,6 +153,27 @@ export const sessions = pgTable(
   },
 );
 
+export const passwordResets = pgTable(
+  "password_resets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      userIdx: index("password_resets_user_idx").on(table.userId),
+    };
+  },
+);
+
 export const orderStatusEnum = pgEnum("order_status", [
   "created",
   "paid",
@@ -251,6 +272,7 @@ export type OrderRow = typeof orders.$inferSelect;
 export type OrderItemRow = typeof orderItems.$inferSelect;
 export type UserRow = typeof users.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
+export type PasswordResetRow = typeof passwordResets.$inferSelect;
 export type WishlistItemRow = typeof wishlistItems.$inferSelect;
 export type CommissionRow = typeof commissions.$inferSelect;
 export type NewCommission = typeof commissions.$inferInsert;

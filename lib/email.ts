@@ -127,6 +127,53 @@ export async function sendOrderConfirmationEmail({
   }
 }
 
+export async function sendPasswordResetEmail({
+  to,
+  name,
+  resetUrl,
+}: {
+  to: string;
+  name: string;
+  resetUrl: string;
+}): Promise<boolean> {
+  if (!resend) return false;
+
+  const html = renderShell(
+    "Reset your password",
+    `
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0 0 16px;">
+        Hello ${name},
+      </p>
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0 0 24px;">
+        A request was received to reset your ArtBlush password. This link is
+        valid for 30 minutes and can only be used once.
+      </p>
+      <p style="margin:0 0 24px;">
+        <a href="${resetUrl}" style="display:inline-block;background:#9b6b43;color:#fffdf9;padding:12px 20px;text-decoration:none;border-radius:2px;">
+          Reset password
+        </a>
+      </p>
+      <p style="font-size:13px;line-height:1.7;color:#5f584c;margin:0;">
+        If you did not ask for this, ignore this email — your password stays
+        exactly as it is. If you need help, reply to this email and the studio
+        will assist.
+      </p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: "Reset your ArtBlush password",
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function sendShipmentNotification({
   to,
   customerName,

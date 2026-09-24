@@ -53,6 +53,14 @@ export function AdminLoginForm({ next }: { next: string }) {
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
+        <div className="flex justify-end">
+          <a
+            href="https://www.artblush.in/forgot-password"
+            className="text-xs text-zinc-500 underline-offset-2 transition-colors hover:text-zinc-300 hover:underline"
+          >
+            Forgot your password?
+          </a>
+        </div>
       </div>
 
       {state.error && (
