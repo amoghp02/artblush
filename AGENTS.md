@@ -84,6 +84,13 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
     returns `{error}` state, calls `redirect()` on success) using React `useActionState`.
   - `updateProfile` also saves the user's delivery ADDRESS (users table has
     address_line_1/2, city, state, postal_code; PIN must be 6 digits; blank = clear).
+  - **Password reset** `app/(site)/forgot-password` + `app/(site)/reset-password`
+    (EMAIL_RESET): asks for an email, emails a one-time 30-min link (token stored
+    SHA-256-hashed in `password_resets`), sets the new password, marks the token
+    used and revokes all the user's sessions. Requesting always reports success
+    (anti-enumeration). Admin users reset via the same www forms and are
+    redirected to admin.artblush.in/login afterwards. The admin login form links
+    to www forgot-password. Sending needs RESEND_API_KEY (see Emails below).
   - **Login is required for checkout** — `app/checkout/page.tsx` + `createCheckoutOrder`
     guard via `requireUser`/`getCurrentUser`; the checkout form prefills the user
     incl. saved address, and the used address auto-saves to the profile after ordering.
