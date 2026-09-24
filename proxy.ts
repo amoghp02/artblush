@@ -12,11 +12,18 @@ export function proxy(req: NextRequest) {
     if (path.startsWith("/admin")) {
       return withNoIndex(NextResponse.next());
     }
-    const cleaned = "/admin/" + path.replace(/^\/+/, "");
-    const dest = new URL(cleaned.endsWith("/") && cleaned !== "/admin/"
-      ? cleaned.slice(0, -1)
-      : cleaned, url);
-    return withNoIndex(NextResponse.rewrite(dest));
+    // Flat conveniences on the admin host: / -> /admin, and the three sections.
+    // Everything else (login, signup, robots*, static files) serves normally.
+    if (
+      path === "/" ||
+      path.startsWith("/orders") ||
+      path.startsWith("/artworks") ||
+      path.startsWith("/commissions")
+    ) {
+      const dest = new URL("/admin/" + path.replace(/^\/+/, ""), url);
+      return withNoIndex(NextResponse.rewrite(dest));
+    }
+    return withNoIndex(NextResponse.next());
   }
 
   if (isProd && path.startsWith("/admin") && host !== ADMIN_HOST) {
