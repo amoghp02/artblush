@@ -19,7 +19,7 @@ interface NavItem {
   icon: string;
 }
 
-export function AdminNav({ item }: { item: NavItem }) {
+export function AdminNav({ item, onClick }: { item: NavItem; onClick?: () => void }) {
   const pathname = usePathname();
   const Icon = ICONS[item.icon] ?? LayoutDashboard;
   const active =
@@ -28,6 +28,7 @@ export function AdminNav({ item }: { item: NavItem }) {
   return (
     <Link
       href={item.href}
+      onClick={onClick}
       className={cn(
         "flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
         active

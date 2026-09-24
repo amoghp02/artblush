@@ -4,6 +4,7 @@ import "../globals.css";
 import { getCurrentUser, isAdminUser } from "@/lib/auth/session";
 import { adminLogoutAction } from "@/app/admin/actions";
 import { AdminNav } from "./AdminNav";
+import { MobileNav } from "./MobileNav";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -80,9 +81,12 @@ export default async function AdminLayout({
 
             <div className="flex min-w-0 flex-1 flex-col">
               <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/90 px-5 backdrop-blur lg:px-8">
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                  Studio Admin
-                </p>
+                <div className="flex items-center gap-3">
+                  <MobileNav />
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                    Studio Admin
+                  </p>
+                </div>
                 <div className="flex items-center gap-3">
                   <p className="hidden text-xs text-muted-foreground sm:block">
                     {user.name} · {user.email}
