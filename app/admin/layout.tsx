@@ -42,7 +42,7 @@ export default async function AdminLayout({
   if (!admin) {
     return (
       <html lang="en" className={`${manrope.variable} ${fraunces.variable}`}>
-        <body style={{ background: "#f4efe6" }}>{children}</body>
+        <body style={{ background: "#09090b" }}>{children}</body>
       </html>
     );
   }
