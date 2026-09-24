@@ -25,7 +25,8 @@ Sold/inventory tracking auto-flags pieces on paid orders. Phase 3 added: a studi
 ADMIN dashboard (/admin — orders, artworks, commissions), shipping & tracking
 (states + tracking number + customer timeline + shipment email), and the contact
 form now persists enquiries into the `commissions` table fed to the admin list.
-Resend order emails are wired but need RESEND_API_KEY + verified sender/recipient.
+Resend order emails are LIVE (RESEND_API_KEY + verified `artblush.in` in the
+Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com).
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -183,9 +184,10 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   notification when the admin marks an order shipped, a studio notification on
   paid orders and new commissions. Never blocks payments/actions on email
   (Promise.allSettled / best-effort). Requires env RESEND_API_KEY + RESEND_FROM_EMAIL
-  (defaults to `ArtBlush <hello.artblush@gmail.com>`; the sender must be
-  verified in the Resend dashboard — Resend emails a confirmation link to the
-  gmail inbox).
+  (defaults to `ArtBlush <studio@artblush.in>` — the Resend-verified
+  domain; every customer-facing send carries `Reply-To: hello.artblush@gmail.com`
+  so replies land in the studio's Gmail inbox, which is also
+  ARTBLUSH_STUDIO_NOTIFY_EMAIL).
 - **DB access** `db/index.ts` (`getDb` lazy singleton, `isDatabaseConfigured()`);
   `lib/data.ts` falls back to the static array in `lib/artworks.ts` when no DB.
 
@@ -247,8 +249,7 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 - [x] Phase 3 admin dashboard: orders / artworks / commissions management
 - [x] Phase 3 shipping & tracking: statuses, tracking number, customer timeline, shipment email
 - [x] Phase 3 commissions: contact form → DB (admin manages pipeline)
-- [~] Phase 2 customer email: Resend code wired; needs RESEND_API_KEY in envs +
-      verified sender/recipient on the Resend dashboard before mail actually sends
+- [x] Phase 2 customer email: Resend wired + verified (studio@artblush.in → gmail, Reply-To)
 - [ ] Set ADMIN_EMAILS + promote owner role in DB; add REAL contact/studio email
 - [ ] Swap placeholder artwork prices for real studio pricing before real-money launch
 - [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
