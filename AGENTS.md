@@ -152,6 +152,11 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   - `/admin` stats (orders, revenue, awaiting-shipment, sold, new commissions).
   - `/admin/orders` + `/admin/orders/[id]`: payment status + shipping status /
     tracking number updates. Marking "shipped" emails the customer (Resend).
+  - Admin list pages (`/admin/orders`, `/admin/artworks`, `/admin/commissions`)
+    have sort + filter via the shared `AdminFilters` client component
+    (`app/admin/AdminFilters.tsx`) — it pushes `<key>=<value>` into the URL
+    query string, and the pages read `searchParams` server-side (Orders filters
+    in SQL, Artworks/Commissions in-memory).
   - `/admin/artworks`: per-piece status/price(₹, stored as paise)/saleable. Status
     "Available" relists sold pieces (sold=false). This is the manual relist/revert
     tool for sold flags.
