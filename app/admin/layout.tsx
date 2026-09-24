@@ -1,12 +1,11 @@
 import { Fraunces, Manrope } from "next/font/google";
-import { ExternalLink, LogOut } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import "../globals.css";
 import { getCurrentUser, isAdminUser } from "@/lib/auth/session";
 import { adminLogoutAction } from "@/app/admin/actions";
 import { AdminNav } from "./AdminNav";
 import { MobileNav } from "./MobileNav";
 import { AdminUserMenu } from "./UserMenu";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const manrope = Manrope({
@@ -89,18 +88,11 @@ export default async function AdminLayout({
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <AdminUserMenu name={user.name} email={user.email} />
-                  <form action={adminLogoutAction}>
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      size="sm"
-                      className="gap-1.5 text-foreground"
-                    >
-                      <LogOut size={13} />
-                      Log out
-                    </Button>
-                  </form>
+                  <AdminUserMenu
+                    name={user.name}
+                    email={user.email}
+                    logoutAction={adminLogoutAction}
+                  />
                 </div>
               </header>
 

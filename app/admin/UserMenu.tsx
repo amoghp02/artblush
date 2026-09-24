@@ -1,9 +1,15 @@
 "use client";
 
-import { User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-export function AdminUserMenu({ name, email }: { name: string; email: string }) {
+interface AdminUserMenuProps {
+  name: string;
+  email: string;
+  logoutAction: () => void | Promise<void>;
+}
+
+export function AdminUserMenu({ name, email, logoutAction }: AdminUserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -39,9 +45,22 @@ export function AdminUserMenu({ name, email }: { name: string; email: string }) 
         <User size={16} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-60 rounded-lg border border-border bg-background p-4 shadow-lg">
-          <p className="text-sm font-semibold text-foreground">{name}</p>
-          <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>
+        <div className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
+          <div className="p-4">
+            <p className="text-sm font-semibold text-foreground">{name}</p>
+            <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>
+          </div>
+          <div className="border-t border-border p-2">
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <LogOut size={14} />
+                Log out
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>
