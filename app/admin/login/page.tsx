@@ -46,10 +46,10 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
               ArtBlush · Studio Ops
             </p>
             <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-50">
-              Admin sign in
+              Sign In
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-              Restricted area — studio staff only.
+              Restricted area - studio staff only.
             </p>
 
             <div className="mt-8">

@@ -5,6 +5,7 @@ import { getCurrentUser, isAdminUser } from "@/lib/auth/session";
 import { adminLogoutAction } from "@/app/admin/actions";
 import { AdminNav } from "./AdminNav";
 import { MobileNav } from "./MobileNav";
+import { AdminUserMenu } from "./UserMenu";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -88,9 +89,7 @@ export default async function AdminLayout({
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="hidden text-xs text-muted-foreground sm:block">
-                    {user.name} · {user.email}
-                  </p>
+                  <AdminUserMenu name={user.name} email={user.email} />
                   <form action={adminLogoutAction}>
                     <Button
                       type="submit"
