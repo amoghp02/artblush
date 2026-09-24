@@ -34,6 +34,7 @@ export const artworks = pgTable(
     price: integer("price"),
     currency: text("currency").notNull().default("INR"),
     saleable: boolean("saleable").notNull().default(false),
+    sold: boolean("sold").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

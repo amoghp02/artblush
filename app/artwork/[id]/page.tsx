@@ -205,7 +205,7 @@ export default async function ArtworkPage({ params }: PageProps) {
       {/* Acquire / Enquire — quiet commerce, after the story */}
       <section className="border-y border-foreground/10 bg-[#efe9dc]">
         <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 md:px-10 md:py-24">
-          {artwork.saleable && artwork.price != null ? (
+          {artwork.saleable && artwork.price != null && !artwork.sold ? (
             <Reveal>
               <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
                 <div className="flex-1 border border-foreground/10 bg-background p-8 sm:p-10">

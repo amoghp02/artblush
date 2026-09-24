@@ -1,15 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
-import { orderItems, orders, users } from "@/db/schema";
+import { artworks, orderItems, orders, users } from "@/db/schema";
 import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   createRazorpayOrder,
   verifyPaymentSignature,
 } from "@/lib/razorpay/server";
+import {
+  notifyStudioOfPaidOrder,
+  sendOrderConfirmationEmail,
+} from "@/lib/email";
 
 export interface CheckoutInput {
   name: string;
@@ -42,6 +46,26 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
   const lines = await getCartLines();
   if (lines.length === 0) {
     throw new Error("Your cart is empty.");
+  }
+
+  // Guard against pieces that sold while the cart was sitting open.
+  const ids = lines.map((line) => line.artwork.id);
+  const liveArtworks = await getDb()
+    .select({ id: artworks.id, sold: artworks.sold, saleable: artworks.saleable })
+    .from(artworks)
+    .where(inArray(artworks.id, ids));
+  const soldIds = new Set(
+    liveArtworks
+      .filter((row) => row.sold || !row.saleable)
+      .map((row) => row.id),
+  );
+  if (soldIds.size > 0) {
+    throw new Error(
+      `One of the pieces in your cart has just sold: ${[...soldIds]
+        .map((id) => lines.find((l) => l.artwork.id === id)?.artwork.title)
+        .filter(Boolean)
+        .join(", ")}. Please remove it and continue.`,
+    );
   }
 
   const totalPaise = cartTotal(lines);
@@ -147,6 +171,69 @@ export async function confirmPaidOrder({
     })
     .where(eq(orders.id, dbOrderId));
   await clearCart();
+
+  // Mark each purchased piece as sold / private collection (one-of-one).
+  const itemRows = await getDb()
+    .select({
+      orderId: orderItems.orderId,
+      artworkId: orderItems.artworkId,
+      title: orderItems.title,
+      price: orderItems.price,
+      quantity: orderItems.quantity,
+    })
+    .from(orderItems)
+    .where(eq(orderItems.orderId, dbOrderId));
+
+  if (itemRows.length > 0) {
+    await getDb()
+      .update(artworks)
+      .set({
+        sold: true,
+        saleable: false,
+        status: "Private Collection",
+        updatedAt: new Date(),
+      })
+      .where(inArray(artworks.id, itemRows.map((item) => item.artworkId)));
+  }
+
+  // Customer confirmation email + studio notification (never block payment on email).
+  const [orderRow] = await getDb()
+    .select()
+    .from(orders)
+    .where(eq(orders.id, dbOrderId))
+    .limit(1);
+
+  if (orderRow) {
+    const mailData = {
+      orderReference: dbOrderId.slice(0, 8).toUpperCase(),
+      lines: itemRows.map((item) => ({
+        title: item.title,
+        quantity: item.quantity,
+        pricePaise: item.price,
+      })),
+      totalPaise: orderRow.amount,
+      address: {
+        line1: orderRow.addressLine1,
+        line2: orderRow.addressLine2 ?? undefined,
+        city: orderRow.city,
+        state: orderRow.state,
+        postalCode: orderRow.postalCode,
+      },
+    };
+    await Promise.allSettled([
+      sendOrderConfirmationEmail({
+        ...mailData,
+        to: orderRow.customerEmail,
+        customerName: orderRow.customerName,
+      }),
+      notifyStudioOfPaidOrder({
+        ...mailData,
+        customerName: orderRow.customerName,
+        customerEmail: orderRow.customerEmail,
+      }),
+    ]);
+  }
+
   return { ok: true, error: null };
 }
 

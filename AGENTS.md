@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Hand-drawn portrait / charcoal art brand. 'Art, Drawn With Feeling'. Read this
 before making any changes; update it as the project evolves.
 
-## Status: LIVE with real portfolio photos + customer accounts + modern UX DEPLOYED
+## Status: LIVE with real portfolio photos + customer accounts + modern UX + inventory + waiting on email
 
 Phase 1 (static premium gallery) is LIVE. Phase 2 marketplace (Neon/Drizzle catalog,
 cookie cart, Razorpay Standard Checkout) + customer accounts + a modern UX pass
@@ -21,6 +21,9 @@ cookie cart, Razorpay Standard Checkout) + customer accounts + a modern UX pass
 testimonials) are fully deployed. The catalog now uses the owner's REAL artwork
 photos (8 pieces, all saleable). Login is REQUIRED for checkout. Razorpay TEST keys
 are armed — real-money launch needs live keys + real studio pricing.
+NEW in phase 2: sold/inventory tracking (auto-flagged on paid order) and Resend
+order emails (code wired; email sending needs RESEND_API_KEY + a verified
+sender/recipient on the user's side).
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -62,7 +65,8 @@ are armed — real-money launch needs live keys + real studio pricing.
   filter, no remote patterns in next.config). `assets/portfolio-photos/` holds the
   raw uploads (copy new photos there → rename to the artwork id slug → copy into
   `public/portfolio-photos/` → update DB row if id/order changes).
-- **Schema** `db/schema.ts`: `artworks`, `cart_items` (unique session+artwork),
+- **Schema** `db/schema.ts`: `artworks` (incl. `sold` bool — one-of-one inventory flag),
+  `cart_items` (unique session+artwork),
   `wishlist_items` (unique session+artwork), `users`, `sessions` (token PK, FK user,
   expiry), `orders` (FK `userId`), `order_items`.
   Prices stored in PAISE (Razorpay convention).
@@ -100,6 +104,17 @@ are armed — real-money launch needs live keys + real studio pricing.
   `app/checkout/CheckoutForm.tsx` opens the checkout.js modal (created order via
   server action, `confirmPaidOrder` verifies the payment signature server-side).
   Webhook route at `app/api/razorpay/webhook`.
+- **SOLD / inventory (Phase 2)**: when a payment is confirmed, every artwork in the
+  order flips to `sold=true`, `saleable=false`, `status="Private Collection"`. Add-to-
+  cart rejects sold pieces; `createCheckoutOrder` re-checks the cart against live DB
+  rows and errors if a piece sold in between. Sold pieces stay in the portfolio gallery
+  (works of art, one-of-one) but the detail page shows the "Interested?" band.
+- **Emails (Phase 2, wired)**: `lib/email.ts` (Resend) sends the customer an order
+  confirmation (summary + shipping + order ref) on paid order, plus an optional studio
+  notification to `ARTBLUSH_STUDIO_NOTIFY_EMAIL`. Never blocks payment on email
+  (Promise.allSettled). Requires env RESEND_API_KEY + RESEND_FROM_EMAIL (currently
+  defaults to Resend sandbox `onboarding@resend.dev`; senders/recipients must be
+  verified in the Resend dashboard until a domain is added).
 - **DB access** `db/index.ts` (`getDb` lazy singleton, `isDatabaseConfigured()`);
   `lib/data.ts` falls back to the static array in `lib/artworks.ts` when no DB.
 
@@ -135,7 +150,9 @@ are armed — real-money launch needs live keys + real studio pricing.
 - Added deps: `drizzle-orm`, `drizzle-kit` (dev), `@neondatabase/serverless`,
   `razorpay`, `tsx` (dev).
 - `.env.local` + Vercel env vars needed: DATABASE_URL, RAZORPAY_KEY_ID,
-  RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET (optional). See `.env.example`.
+  RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET (optional), RESEND_API_KEY (optional —
+  emails silently skip when unset), RESEND_FROM_EMAIL, ARTBLUSH_STUDIO_NOTIFY_EMAIL.
+  See `.env.example`.
 
 ## Verification commands
 
@@ -154,12 +171,15 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 
 ## Placeholder / TODO (phase-gating)
 
+- [x] Phase 2 inventory: sold flag auto-set on paid order (checkout guards double-sell)
+- [~] Phase 2 customer email: Resend code wired; needs RESEND_API_KEY in envs +
+      verified sender/recipient on the Resend dashboard before mail actually sends
 - [ ] Swap placeholder artwork prices for real studio pricing before real-money launch
 - [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
 - [ ] Replace LIVE Razorpay keys when going into production
 - [ ] Replace contact email placeholder
 - [ ] Replace placeholder Testimonials quotes with real collector words
 - [ ] Add rest of the portfolio pieces once photographed (owner uploads to assets/portfolio-photos/)
-- [ ] og:image for social previews (use a real artwork asset)
-- [ ] Phase 3: customer accounts admin panel, order mgmt, commissions, shipping
-- [ ] Phase 4: commission builder, progress tracking, certificates
+- [ ] og:image per-page is done for artwork; consider a branded 1200×630 OG card
+- [ ] Phase 3: admin dashboard, commission management, shipping API/tracking, automated notifications
+- [ ] Phase 4: commission builder, progress tracking, gift cards, reviews, limited editions, wall visualization, personalized recommendations

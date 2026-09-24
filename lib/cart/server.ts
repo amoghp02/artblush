@@ -79,7 +79,7 @@ export async function addToCart(artworkId: string, quantity = 1) {
     .where(eq(artworks.id, artworkId))
     .limit(1);
 
-  if (!artwork || !artwork.saleable || artwork.price == null) {
+  if (!artwork || !artwork.saleable || artwork.price == null || artwork.sold) {
     return { ok: false };
   }
 

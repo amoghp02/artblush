@@ -1,0 +1,177 @@
+import "server-only";
+
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "ArtBlush <onboarding@resend.dev>";
+const STUDIO_NOTIFY_EMAIL = process.env.ARTBLUSH_STUDIO_NOTIFY_EMAIL;
+
+export function isEmailConfigured(): boolean {
+  return resend !== null;
+}
+
+export interface OrderEmailLine {
+  title: string;
+  quantity: number;
+  pricePaise: number;
+}
+
+export interface OrderEmailAddress {
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+}
+
+function formatINR(paise: number) {
+  return `₹${(paise / 100).toLocaleString("en-IN")}`;
+}
+
+function renderOrderSummary(lines: OrderEmailLine[], totalPaise: number) {
+  const rows = lines
+    .map(
+      (line) => `
+        <tr>
+          <td style="padding:10px 0;border-bottom:1px solid #e8e2d3;font-size:14px;color:#1f1b15;">
+            ${line.title}${line.quantity > 1 ? ` × ${line.quantity}` : ""}
+          </td>
+          <td style="padding:10px 0;border-bottom:1px solid #e8e2d3;font-size:14px;color:#1f1b15;text-align:right;">
+            ${formatINR(line.pricePaise * line.quantity)}
+          </td>
+        </tr>`,
+    )
+    .join("");
+
+  return `
+    <table role="presentation" style="width:100%;border-collapse:collapse;">
+      ${rows}
+      <tr>
+        <td style="padding:12px 0;font-size:14px;color:#1f1b15;"><strong>Total (incl. shipping)</strong></td>
+        <td style="padding:12px 0;font-size:14px;color:#1f1b15;text-align:right;"><strong>${formatINR(totalPaise)}</strong></td>
+      </tr>
+    </table>`;
+}
+
+function renderShell(title: string, inner: string) {
+  return `
+    <div style="background:#f4efe6;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;">
+      <div style="max-width:560px;margin:0 auto;background:#fffdf9;border:1px solid #e8e2d3;padding:32px;">
+        <p style="margin:0 0 4px;font-size:20px;color:#9b6b43;">ArtBlush</p>
+        <p style="margin:0 0 24px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#9b6b43;">Art, drawn with feeling</p>
+        <h1 style="margin:0 0 16px;font-size:22px;color:#1f1b15;font-weight:400;">${title}</h1>
+        ${inner}
+      </div>
+    </div>`;
+}
+
+export async function sendOrderConfirmationEmail({
+  to,
+  customerName,
+  orderReference,
+  lines,
+  totalPaise,
+  address,
+}: {
+  to: string;
+  customerName: string;
+  orderReference: string;
+  lines: OrderEmailLine[];
+  totalPaise: number;
+  address: OrderEmailAddress;
+}): Promise<boolean> {
+  if (!resend) return false;
+  const addressHtml = [
+    address.line1,
+    address.line2,
+    `${address.city}, ${address.state} ${address.postalCode}`,
+  ]
+    .filter(Boolean)
+    .join("<br/>");
+
+  const html = renderShell(
+    `Thank you, ${customerName}.`,
+    `
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0 0 24px;">
+        Your order is confirmed and paid for. Each piece is one-of-one, drawn by
+        hand and signed at the studio — it will ship framed within 7–10 days with a
+        certificate of authenticity.
+      </p>
+      ${renderOrderSummary(lines, totalPaise)}
+      <p style="font-size:14px;color:#1f1b15;margin:24px 0 4px;"><strong>Shipping to</strong></p>
+      <p style="font-size:14px;line-height:1.6;color:#1f1b15;margin:0 0 24px;">${addressHtml}</p>
+      <p style="font-size:14px;color:#1f1b15;margin:0 0 8px;">
+        Order reference: <strong>${orderReference}</strong>
+      </p>
+      <p style="font-size:13px;line-height:1.7;color:#5f584c;margin:0;">
+        We will email you tracking details as soon as your piece leaves the studio.
+        Questions? Just reply to this email.
+      </p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: `Your ArtBlush order ${orderReference} is confirmed`,
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function notifyStudioOfPaidOrder({
+  customerName,
+  customerEmail,
+  orderReference,
+  lines,
+  totalPaise,
+  address,
+}: {
+  customerName: string;
+  customerEmail: string;
+  orderReference: string;
+  lines: OrderEmailLine[];
+  totalPaise: number;
+  address: OrderEmailAddress;
+}): Promise<boolean> {
+  if (!resend || !STUDIO_NOTIFY_EMAIL) return false;
+  const addressHtml = [
+    address.line1,
+    address.line2,
+    `${address.city}, ${address.state} ${address.postalCode}`,
+  ]
+    .filter(Boolean)
+    .join("<br/>");
+
+  const html = renderShell(
+    `New paid order ${orderReference}`,
+    `
+      <p style="font-size:14px;line-height:1.6;color:#1f1b15;margin:0 0 16px;">
+        ${customerName} · ${customerEmail}
+      </p>
+      ${renderOrderSummary(lines, totalPaise)}
+      <p style="font-size:14px;color:#1f1b15;margin:24px 0 4px;"><strong>Ship to</strong></p>
+      <p style="font-size:14px;line-height:1.6;color:#1f1b15;margin:0;">${addressHtml}</p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: STUDIO_NOTIFY_EMAIL,
+      subject: `ArtBlush: new paid order ${orderReference}`,
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}

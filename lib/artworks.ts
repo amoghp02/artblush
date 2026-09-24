@@ -18,6 +18,7 @@ export interface Artwork {
   price?: number;
   currency?: string;
   saleable?: boolean;
+  sold?: boolean;
 }
 
 const images = {

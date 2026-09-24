@@ -33,6 +33,7 @@ async function main() {
       price: pricing.price,
       currency: "INR",
       saleable: pricing.saleable,
+      sold: art.sold ?? false,
     };
   });
 

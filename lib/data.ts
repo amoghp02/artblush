@@ -28,6 +28,7 @@ function toArtwork(row: ArtworkRow): Artwork {
     price: row.price ?? undefined,
     currency: row.currency,
     saleable: row.saleable,
+    sold: row.sold,
   };
 }
 
@@ -67,8 +68,10 @@ export async function getRelatedArtworks(id: string, count = 3): Promise<Artwork
   return related.slice(0, count);
 }
 
-/** Artworks available for purchase (has price and saleable flag). */
+/** Artworks available for purchase (saleable, priced, and not yet sold). */
 export async function getSaleableArtworks(): Promise<Artwork[]> {
   const all = await getArtworks();
-  return all.filter((art) => art.saleable && art.price != null);
+  return all.filter(
+    (art) => art.saleable && art.price != null && !art.sold,
+  );
 }
