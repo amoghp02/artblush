@@ -121,6 +121,11 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
   /login?next=/admin and non-admins to /account. `/api/me` returns `{user, isAdmin}`;
   the header avatar dropdown shows an "Admin" link for admins.
 - **ADMIN dashboard (Phase 3)** `app/admin/`:
+  - Subdomain: `admin.artblush.in` hosts the dashboard (see `proxy.ts`).
+    On the admin host, top-level paths (/, orders, artworks, commissions) rewrite
+    into `/admin/...`; the www host redirects any `/admin*` to the subdomain.
+    Admin pages get `X-Robots-Tag: noindex`; matcher keeps a second Vercel domain
+    (DNS via Vercel) pointing at the same deployment.
   - `layout.tsx` guards all admin pages with `requireAdmin()`; tabs: Dashboard,
     Orders, Artworks, Commissions. Server actions in `app/admin/actions.ts`
     (each re-guards with requireAdmin).
