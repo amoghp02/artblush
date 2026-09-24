@@ -25,7 +25,16 @@ interface RazorpaySuccessResponse {
 
 interface CheckoutFormProps {
   totalPaise: number;
-  user: { name: string; email: string; phone: string | null };
+  user: {
+    name: string;
+    email: string;
+    phone: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+  };
 }
 
 const inputClasses =
@@ -134,6 +143,16 @@ export default function CheckoutForm({ totalPaise, user }: CheckoutFormProps) {
         <h2 className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/45">
           Delivery details
         </h2>
+        {user.addressLine1 && (
+          <p className="mt-2 text-xs text-foreground/50">
+            Using your saved address — it updates automatically after this order.
+            You can edit it in{" "}
+            <Link href="/account/profile" className="text-accent underline-offset-4 hover:underline">
+              your profile
+            </Link>
+            .
+          </p>
+        )}
         <div className="mt-6 grid gap-8 sm:grid-cols-2">
           <div>
             <label htmlFor="name" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
@@ -157,31 +176,31 @@ export default function CheckoutForm({ totalPaise, user }: CheckoutFormProps) {
             <label htmlFor="addressLine1" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               Address line 1 *
             </label>
-            <input id="addressLine1" name="addressLine1" type="text" required autoComplete="address-line1" className={inputClasses} />
+            <input id="addressLine1" name="addressLine1" type="text" required autoComplete="address-line1" defaultValue={user.addressLine1 ?? ""} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="addressLine2" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               Address line 2
             </label>
-            <input id="addressLine2" name="addressLine2" type="text" autoComplete="address-line2" className={inputClasses} />
+            <input id="addressLine2" name="addressLine2" type="text" autoComplete="address-line2" defaultValue={user.addressLine2 ?? ""} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="city" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               City *
             </label>
-            <input id="city" name="city" type="text" required autoComplete="address-level2" className={inputClasses} />
+            <input id="city" name="city" type="text" required autoComplete="address-level2" defaultValue={user.city ?? ""} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="state" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               State *
             </label>
-            <input id="state" name="state" type="text" required autoComplete="address-level1" className={inputClasses} />
+            <input id="state" name="state" type="text" required autoComplete="address-level1" defaultValue={user.state ?? ""} className={inputClasses} />
           </div>
           <div>
             <label htmlFor="postalCode" className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
               PIN code *
             </label>
-            <input id="postalCode" name="postalCode" type="text" required autoComplete="postal-code" className={inputClasses} />
+            <input id="postalCode" name="postalCode" type="text" required autoComplete="postal-code" defaultValue={user.postalCode ?? ""} className={inputClasses} />
           </div>
         </div>
       </div>

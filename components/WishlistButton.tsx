@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { getWishlistIdsAction, toggleWishlistAction } from "@/lib/wishlist/actions";
 import { toast } from "@/lib/toast";
@@ -16,6 +17,7 @@ export default function WishlistButton({
   title,
   variant = "inline",
 }: WishlistButtonProps) {
+  const router = useRouter();
   const [wishlisted, setWishlisted] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -47,6 +49,7 @@ export default function WishlistButton({
           res.wishlisted ? `Saved "${title}" to your wishlist` : `Removed "${title}" from wishes`,
           res.wishlisted ? "success" : "default",
         );
+        router.refresh();
       } else {
         setWishlisted(!next);
       }

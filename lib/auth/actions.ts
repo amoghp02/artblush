@@ -120,6 +120,11 @@ export async function updateProfile(
 
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
+  const addressLine1 = String(formData.get("addressLine1") ?? "").trim();
+  const addressLine2 = String(formData.get("addressLine2") ?? "").trim();
+  const city = String(formData.get("city") ?? "").trim();
+  const state = String(formData.get("state") ?? "").trim();
+  const postalCode = String(formData.get("postalCode") ?? "").trim();
 
   if (name.length < 2) {
     return { error: "Please enter your name." };
@@ -128,9 +133,33 @@ export async function updateProfile(
     return { error: "Accounts are not available yet. Please try again later." };
   }
 
+  const addressEntered =
+    addressLine1 || addressLine2 || city || state || postalCode;
+
+  if (addressEntered) {
+    if (!addressLine1 || !city || !state || !postalCode) {
+      return {
+        error:
+          "Please complete your saved address — street, city, state and PIN code are required (leave them all blank to clear).",
+      };
+    }
+    if (!/^\d{6}$/.test(postalCode)) {
+      return { error: "PIN code must be 6 digits." };
+    }
+  }
+
   await getDb()
     .update(users)
-    .set({ name, phone: phone || null, updatedAt: new Date() })
+    .set({
+      name,
+      phone: phone || null,
+      addressLine1: addressEntered ? addressLine1 : null,
+      addressLine2: addressEntered ? addressLine2 || null : null,
+      city: addressEntered ? city : null,
+      state: addressEntered ? state : null,
+      postalCode: addressEntered ? postalCode : null,
+      updatedAt: new Date(),
+    })
     .where(eq(users.id, user.id));
 
   redirect("/account/profile");

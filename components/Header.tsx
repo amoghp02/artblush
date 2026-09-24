@@ -176,6 +176,9 @@ function MobileMenu({
         >
           Cart
         </Link>
+        <div className="border-t border-foreground/10 pt-2">
+          <AccountMenu variant="menu" />
+        </div>
       </nav>
     </div>
   );

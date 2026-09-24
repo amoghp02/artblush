@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Package, User } from "lucide-react";
 import { logout } from "@/lib/auth/actions";
 
@@ -10,6 +11,11 @@ interface MeUser {
   name: string;
   email: string;
   phone: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
 }
 
 export interface MeResponse {
@@ -25,11 +31,16 @@ function initials(name: string) {
     .join("");
 }
 
-export default function AccountMenu() {
+export default function AccountMenu({
+  variant = "header",
+}: {
+  variant?: "header" | "menu";
+}) {
   const [user, setUser] = useState<MeUser | null>(null);
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,11 +67,13 @@ export default function AccountMenu() {
     }
 
     window.addEventListener("auth-updated", onAuth);
+    window.addEventListener("focus", onAuth);
     return () => {
       cancelled = true;
       window.removeEventListener("auth-updated", onAuth);
+      window.removeEventListener("focus", onAuth);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -89,14 +102,64 @@ export default function AccountMenu() {
     );
   }
 
+  if (variant === "menu") {
+    return (
+      <div>
+        {user ? (
+          <Link
+            href="/account"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 py-3 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
+          >
+            <User size={16} strokeWidth={1.6} />
+            Your account
+          </Link>
+        ) : (
+          <>
+            <Link
+              href="/signup"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 pt-3 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
+            >
+              Create account
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 pb-2 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground"
+            >
+              Log in
+            </Link>
+          </>
+        )}
+      </div>
+    );
+  }
+
   if (!user) {
     return (
-      <Link
-        href="/login"
-        className="inline-flex h-8 items-center rounded-full border border-foreground/20 px-4 text-[12px] font-medium uppercase tracking-[0.18em] text-foreground transition-colors hover:border-accent hover:text-accent"
-      >
-        Sign in
-      </Link>
+      <>
+        <span className="hidden items-center gap-2 md:flex">
+          <Link
+            href="/signup"
+            className="inline-flex h-8 items-center rounded-full border border-foreground/25 px-4 text-[12px] font-medium uppercase tracking-[0.18em] text-foreground transition-colors hover:border-accent hover:text-accent"
+          >
+            Create account
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex h-8 items-center rounded-full bg-foreground px-4 text-[12px] font-medium uppercase tracking-[0.18em] text-background transition-colors hover:bg-[#3a352c]"
+          >
+            Sign in
+          </Link>
+        </span>
+        <Link
+          href="/login"
+          className="items-center gap-1.5 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground transition-colors hover:text-accent md:hidden"
+        >
+          Sign in
+        </Link>
+      </>
     );
   }
 

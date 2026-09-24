@@ -72,19 +72,25 @@ are armed — real-money launch needs live keys + real studio pricing.
     httpOnly/lax/secure-in-prod); `getCurrentUser`, `requireUser(next?)` (redirects).
   - `actions.ts`: `signUp`/`login`/`logout`/`updateProfile` (form-action compatible,
     returns `{error}` state, calls `redirect()` on success) using React `useActionState`.
+  - `updateProfile` also saves the user's delivery ADDRESS (users table has
+    address_line_1/2, city, state, postal_code; PIN must be 6 digits; blank = clear).
   - **Login is required for checkout** — `app/checkout/page.tsx` + `createCheckoutOrder`
-    guard via `requireUser`/`getCurrentUser`; the checkout form prefills the user.
+    guard via `requireUser`/`getCurrentUser`; the checkout form prefills the user
+    incl. saved address, and the used address auto-saves to the profile after ordering.
 - **Account** `app/account/` (layout guards via `requireUser`, tabs in layout):
-  `/account` overview + recent orders, `/account/orders` history, `/account/orders/[id]`
-  detail, `/account/profile` name/phone edit (email immutable).
-  Order queries: `lib/orders.ts` (`getOrdersForUser`, `getOrderForUser`, status labels).
+  `/account` overview + recent orders + saved address, `/account/orders` history,
+  `/account/orders/[id]` detail, `/account/profile` edits name/phone + saved address
+  (email immutable). Order queries: `lib/orders.ts`.
 - **Wishlist** `lib/wishlist/` + `/wishlist` page — session-cookie based (reuses the
   cart session cookie `artblush_cart`, works for guests too). Heart button on
   `ArtworkCard` + artwork detail; `component/WishlistButton.tsx` optimistic toggle +
-  dispatches `wishlist-updated` event (header badge listens). DB table `wishlist_items`.
-- **Modern UX components**: `AccountMenu` (avatar initials in header, dropdown:
-  dashboard/orders/profile/sign-out; reads `/api/me`, listens for `auth-updated`),
-  `Toaster` (Listens `artblush-toast` CustomEvent from `lib/toast.ts`; shown on
+  dispatches `wishlist-updated` event (header badge listens) + `router.refresh()` so
+  `/wishlist` re-renders after a toggle. DB table `wishlist_items`.
+- **Modern UX components**: `AccountMenu` (avatar initials in header; refetches
+  `/api/me` on every navigation change so sign-in state updates after login/logout;
+  logged-out header shows "Create account" + "Sign in" pills on desktop / "Sign in"
+  on mobile; `variant="menu"` adds sign-in links inside the mobile menu;
+  listens for `auth-updated`), `Toaster` (Listens `artblush-toast` CustomEvent from `lib/toast.ts`; shown on
   add-to-cart/wishlist/copied-link), `CheckoutSteps` (Bag → Details & Payment →
   Confirmation on cart/checkout/success), `OrderStatusTimeline` (order detail),
   `BackToTop` (root layout), `ShareLinks` (copy link / WhatsApp / native share on

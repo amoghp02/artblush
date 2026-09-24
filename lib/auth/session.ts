@@ -16,6 +16,11 @@ export interface PublicUser {
   name: string;
   email: string;
   phone: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
 }
 
 export async function createSession(userId: string): Promise<void> {
@@ -83,6 +88,11 @@ export function publicUser(user: UserRow): PublicUser {
     name: user.name,
     email: user.email,
     phone: user.phone,
+    addressLine1: user.addressLine1,
+    addressLine2: user.addressLine2,
+    city: user.city,
+    state: user.state,
+    postalCode: user.postalCode,
   };
 }
 

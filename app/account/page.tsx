@@ -26,6 +26,21 @@ export default async function AccountPage() {
             <dt className="text-foreground/45">Phone</dt>
             <dd className="mt-0.5 text-foreground">{user.phone ?? "—"}</dd>
           </div>
+          <div>
+            <dt className="text-foreground/45">Saved address</dt>
+            <dd className="mt-0.5 text-sm leading-relaxed text-foreground">
+              {user.addressLine1 ? (
+                <>
+                  {user.addressLine1}
+                  {user.addressLine2 ? `, ${user.addressLine2}` : ""}
+                  <br />
+                  {user.city}, {user.state} {user.postalCode}
+                </>
+              ) : (
+                "Not saved yet"
+              )}
+            </dd>
+          </div>
         </dl>
         <Link
           href="/account/profile"

@@ -7,7 +7,16 @@ const inputClasses =
   "w-full border-b border-foreground/15 bg-transparent py-3 text-base text-foreground placeholder:text-foreground/35 transition-colors focus:border-accent focus:outline-none";
 
 interface ProfileFormProps {
-  user: { name: string; email: string; phone: string };
+  user: {
+    name: string;
+    email: string;
+    phone: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  };
 }
 
 export default function ProfileForm({ user }: ProfileFormProps) {
@@ -67,6 +76,105 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           autoComplete="tel"
           className={inputClasses}
         />
+      </div>
+
+      <div className="space-y-8 pt-4">
+        <h3 className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/45">
+          Saved address
+        </h3>
+        <p className="text-xs leading-relaxed text-foreground/50">
+          Prefilled at checkout. Leave all fields blank to clear your saved
+          address.
+        </p>
+
+        <div>
+          <label
+            htmlFor="addressLine1"
+            className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45"
+          >
+            Address line 1 *
+          </label>
+          <input
+            id="addressLine1"
+            name="addressLine1"
+            type="text"
+            defaultValue={user.addressLine1}
+            autoComplete="address-line1"
+            className={inputClasses}
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="addressLine2"
+            className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45"
+          >
+            Address line 2
+          </label>
+          <input
+            id="addressLine2"
+            name="addressLine2"
+            type="text"
+            defaultValue={user.addressLine2}
+            autoComplete="address-line2"
+            className={inputClasses}
+          />
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="city"
+              className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45"
+            >
+              City *
+            </label>
+            <input
+              id="city"
+              name="city"
+              type="text"
+              defaultValue={user.city}
+              autoComplete="address-level2"
+              className={inputClasses}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="state"
+              className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45"
+            >
+              State *
+            </label>
+            <input
+              id="state"
+              name="state"
+              type="text"
+              defaultValue={user.state}
+              autoComplete="address-level1"
+              className={inputClasses}
+            />
+          </div>
+        </div>
+
+        <div className="max-w-[160px]">
+          <label
+            htmlFor="postalCode"
+            className="mb-1 block text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45"
+          >
+            PIN code *
+          </label>
+          <input
+            id="postalCode"
+            name="postalCode"
+            type="text"
+            defaultValue={user.postalCode}
+            inputMode="numeric"
+            maxLength={6}
+            autoComplete="postal-code"
+            className={inputClasses}
+          />
+        </div>
       </div>
 
       {state.error && (

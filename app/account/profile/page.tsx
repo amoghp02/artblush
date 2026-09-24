@@ -19,7 +19,16 @@ export default async function ProfilePage() {
         Your email is your login and cannot be changed here.
       </p>
       <ProfileForm
-        user={{ name: user.name, email: user.email, phone: user.phone ?? "" }}
+        user={{
+          name: user.name,
+          email: user.email,
+          phone: user.phone ?? "",
+          addressLine1: user.addressLine1 ?? "",
+          addressLine2: user.addressLine2 ?? "",
+          city: user.city ?? "",
+          state: user.state ?? "",
+          postalCode: user.postalCode ?? "",
+        }}
       />
     </div>
   );

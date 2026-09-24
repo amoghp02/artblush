@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
-import { orderItems, orders } from "@/db/schema";
+import { orderItems, orders, users } from "@/db/schema";
 import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -89,6 +89,18 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
       quantity: line.quantity,
     })),
   );
+
+  await getDb()
+    .update(users)
+    .set({
+      addressLine1: input.addressLine1,
+      addressLine2: input.addressLine2 || null,
+      city: input.city,
+      state: input.state,
+      postalCode: input.postalCode,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
 
   return {
     keyId: process.env.RAZORPAY_KEY_ID,
