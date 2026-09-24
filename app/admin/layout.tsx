@@ -1,5 +1,5 @@
 import { Fraunces, Manrope } from "next/font/google";
-import { ExternalLink, LayoutDashboard, LogOut, MessagesSquare, Package, Palette } from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import "../globals.css";
 import { getCurrentUser, isAdminUser } from "@/lib/auth/session";
 import { adminLogoutAction } from "@/app/admin/actions";
@@ -25,10 +25,10 @@ export const metadata = {
 };
 
 const tabs = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Orders", href: "/admin/orders", icon: Package },
-  { label: "Artworks", href: "/admin/artworks", icon: Palette },
-  { label: "Commissions", href: "/admin/commissions", icon: MessagesSquare },
+  { label: "Dashboard", href: "/admin", icon: "dashboard" },
+  { label: "Orders", href: "/admin/orders", icon: "orders" },
+  { label: "Artworks", href: "/admin/artworks", icon: "artworks" },
+  { label: "Commissions", href: "/admin/commissions", icon: "commissions" },
 ];
 
 export default async function AdminLayout({

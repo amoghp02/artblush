@@ -2,16 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, MessagesSquare, Package, Palette } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const ICONS: Record<string, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  orders: Package,
+  artworks: Palette,
+  commissions: MessagesSquare,
+};
 
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ size?: number | string; className?: string }>;
+  icon: string;
 }
 
 export function AdminNav({ item }: { item: NavItem }) {
   const pathname = usePathname();
+  const Icon = ICONS[item.icon] ?? LayoutDashboard;
   const active =
     pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
 
@@ -26,7 +36,7 @@ export function AdminNav({ item }: { item: NavItem }) {
       )}
       aria-current={active ? "page" : undefined}
     >
-      <item.icon size={15} />
+      <Icon size={15} />
       {item.label}
     </Link>
   );

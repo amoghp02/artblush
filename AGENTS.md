@@ -142,6 +142,10 @@ Resend order emails are wired but need RESEND_API_KEY + verified sender/recipien
     browsers that aren't get the bare tree. Each admin page runs its own
     `requireAdmin()` guard (login page is deliberately unguarded). Server actions
     in `app/admin/actions.ts` re-guard with `requireAdmin`.
+  - GOTCHA: `AdminNav` is a client component — pass lucide icons to it as a
+    STRING key (client-side lookup table), never as a `ComponentType` function
+    prop. React 19 throws "Functions cannot be passed directly to Client
+    Components" and 500s the whole dashboard.
   - `/admin` dashboard: stats cards, latest orders, "Active admin sessions" widget
     (current signed-in admin sessions with per-row Revoke →
     `revokeAdminSessionAction`; sessions come from `lib/admin/sessions.ts`).
