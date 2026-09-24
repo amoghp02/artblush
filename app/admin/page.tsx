@@ -106,7 +106,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="sm:col-span-2 lg:col-span-1">
+        <Card className="min-w-0 sm:col-span-2 lg:col-span-1">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle className="text-sm font-semibold">
@@ -182,7 +182,7 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <ShieldCheck size={15} className="text-accent" />
