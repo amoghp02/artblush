@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LogOut, Package, User } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, Package, User } from "lucide-react";
 import { logout } from "@/lib/auth/actions";
 
 interface MeUser {
@@ -20,6 +20,7 @@ interface MeUser {
 
 export interface MeResponse {
   user: MeUser | null;
+  isAdmin: boolean;
 }
 
 function initials(name: string) {
@@ -37,6 +38,7 @@ export default function AccountMenu({
   variant?: "header" | "menu";
 }) {
   const [user, setUser] = useState<MeUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -49,12 +51,14 @@ export default function AccountMenu({
       .then((data) => {
         if (!cancelled) {
           setUser(data.user);
+          setIsAdmin(!!data.isAdmin);
           setLoaded(true);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setUser(null);
+          setIsAdmin(false);
           setLoaded(true);
         }
       });
@@ -62,8 +66,14 @@ export default function AccountMenu({
     function onAuth() {
       fetch("/api/me", { cache: "no-store" })
         .then((res) => res.json() as Promise<MeResponse>)
-        .then((data) => setUser(data.user))
-        .catch(() => setUser(null));
+        .then((data) => {
+          setUser(data.user);
+          setIsAdmin(!!data.isAdmin);
+        })
+        .catch(() => {
+          setUser(null);
+          setIsAdmin(false);
+        });
     }
 
     window.addEventListener("auth-updated", onAuth);
@@ -201,6 +211,14 @@ export default function AccountMenu({
               label="Orders"
               onNavigate={() => setOpen(false)}
             />
+            {isAdmin && (
+              <MenuLink
+                href="/admin"
+                icon={<LayoutDashboard size={15} strokeWidth={1.6} />}
+                label="Admin"
+                onNavigate={() => setOpen(false)}
+              />
+            )}
           </div>
 
           <div className="border-t border-foreground/10 py-1.5">

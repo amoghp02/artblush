@@ -64,7 +64,12 @@ export default async function OrderDetailPage({ params }: PageProps) {
           Order status
         </h3>
         <div className="mt-6">
-          <OrderStatusTimeline status={order.status} />
+          <OrderStatusTimeline
+            status={order.status}
+            shippingStatus={order.shippingStatus}
+            trackingNumber={order.trackingNumber ?? undefined}
+            trackingCarrier={order.trackingCarrier ?? undefined}
+          />
         </div>
       </div>
 

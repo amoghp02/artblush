@@ -16,6 +16,7 @@ export interface PublicUser {
   name: string;
   email: string;
   phone: string | null;
+  role: "admin" | "customer";
   addressLine1: string | null;
   addressLine2: string | null;
   city: string | null;
@@ -88,12 +89,35 @@ export function publicUser(user: UserRow): PublicUser {
     name: user.name,
     email: user.email,
     phone: user.phone,
+    role: user.role,
     addressLine1: user.addressLine1,
     addressLine2: user.addressLine2,
     city: user.city,
     state: user.state,
     postalCode: user.postalCode,
   };
+}
+
+/** An admin is either flagged in the DB or listed in ADMIN_EMAILS (env). */
+export function isAdminUser(user: Pick<PublicUser, "role" | "email">): boolean {
+  if (user.role === "admin") return true;
+  const allowed = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  return allowed.includes(user.email.toLowerCase());
+}
+
+/** Redirects to /login (or /account when signed in but not an admin). */
+export async function requireAdmin(): Promise<PublicUser> {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login?next=%2Fadmin");
+  }
+  if (!isAdminUser(user)) {
+    redirect("/account");
+  }
+  return user;
 }
 
 /** Redirects to /login (optionally back to `next`) when there is no session. */

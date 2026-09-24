@@ -127,6 +127,100 @@ export async function sendOrderConfirmationEmail({
   }
 }
 
+export async function sendShipmentNotification({
+  to,
+  customerName,
+  orderReference,
+  trackingNumber,
+  trackingCarrier,
+}: {
+  to: string;
+  customerName: string;
+  orderReference: string;
+  trackingNumber?: string;
+  trackingCarrier?: string;
+}): Promise<boolean> {
+  if (!resend) return false;
+  const tracking = trackingNumber
+    ? `
+      <p style="font-size:14px;color:#1f1b15;margin:16px 0 4px;"><strong>Tracking</strong></p>
+      <p style="font-size:14px;color:#1f1b15;margin:0;">
+        ${trackingCarrier ? `${trackingCarrier} · ` : ""}${trackingNumber}
+      </p>`
+    : "";
+
+  const html = renderShell(
+    `On its way, ${customerName}.`,
+    `
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0 0 24px;">
+        Your artwork from order <strong>${orderReference}</strong> has left the
+        studio, packed and ready. It usually arrives within a few days.
+      </p>
+      ${tracking}
+      <p style="font-size:13px;line-height:1.7;color:#5f584c;margin:24px 0 0;">
+        Thank you for trusting ArtBlush with a piece of your story. If anything
+        needs attention, simply reply to this email.
+      </p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: `Your ArtBlush order ${orderReference} has shipped`,
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function notifyStudioOfCommission({
+  name,
+  email,
+  phone,
+  enquiryType,
+  message,
+}: {
+  name: string;
+  email: string;
+  phone?: string;
+  enquiryType: string;
+  message: string;
+}): Promise<boolean> {
+  if (!resend || !STUDIO_NOTIFY_EMAIL) return false;
+
+  const html = renderShell(
+    `New enquiry — ${enquiryType}`,
+    `
+      <p style="font-size:14px;line-height:1.6;color:#1f1b15;margin:0 0 16px;">
+        <strong>${name}</strong> · ${email}${phone ? ` · ${phone}` : ""}
+      </p>
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0;white-space:pre-wrap;">
+        ${message}
+      </p>
+      <p style="font-size:13px;color:#5f584c;margin:24px 0 0;">
+        Tracked in the admin Commissions tab
+        (https://www.artblush.in/admin/commissions).
+      </p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: STUDIO_NOTIFY_EMAIL,
+      subject: `ArtBlush: new enquiry — ${enquiryType}`,
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function notifyStudioOfPaidOrder({
   customerName,
   customerEmail,

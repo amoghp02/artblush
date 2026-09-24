@@ -97,12 +97,30 @@ export const wishlistItems = pgTable(
   },
 );
 
+export const userRoleEnum = pgEnum("user_role", ["admin", "customer"]);
+
+export const shippingStatusEnum = pgEnum("shipping_status", [
+  "awaiting_shipment",
+  "shipped",
+  "delivered",
+  "returned",
+]);
+
+export const commissionStatusEnum = pgEnum("commission_status", [
+  "new",
+  "contacted",
+  "in_progress",
+  "completed",
+  "declined",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   phone: text("phone"),
   passwordHash: text("password_hash").notNull(),
+  role: userRoleEnum("role").notNull().default("customer"),
   addressLine1: text("address_line_1"),
   addressLine2: text("address_line_2"),
   city: text("city"),
@@ -161,6 +179,13 @@ export const orders = pgTable(
     city: text("city").notNull(),
     state: text("state").notNull(),
     postalCode: text("postal_code").notNull(),
+    shippingStatus: shippingStatusEnum("shipping_status")
+      .notNull()
+      .default("awaiting_shipment"),
+    trackingNumber: text("tracking_number"),
+    trackingCarrier: text("tracking_carrier"),
+    shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -193,6 +218,32 @@ export const orderItems = pgTable(
   },
 );
 
+export const commissions = pgTable(
+  "commissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    phone: text("phone"),
+    enquiryType: text("enquiry_type").notNull(),
+    message: text("message").notNull(),
+    status: commissionStatusEnum("status").notNull().default("new"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      statusIdx: index("commissions_status_idx").on(table.status),
+      createdAtIdx: index("commissions_created_idx").on(table.createdAt),
+    };
+  },
+);
+
 export type ArtworkRow = typeof artworks.$inferSelect;
 export type NewArtwork = typeof artworks.$inferInsert;
 export type CartItemRow = typeof cartItems.$inferSelect;
@@ -201,3 +252,5 @@ export type OrderItemRow = typeof orderItems.$inferSelect;
 export type UserRow = typeof users.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type WishlistItemRow = typeof wishlistItems.$inferSelect;
+export type CommissionRow = typeof commissions.$inferSelect;
+export type NewCommission = typeof commissions.$inferInsert;

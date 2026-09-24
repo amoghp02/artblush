@@ -13,17 +13,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Hand-drawn portrait / charcoal art brand. 'Art, Drawn With Feeling'. Read this
 before making any changes; update it as the project evolves.
 
-## Status: LIVE with real portfolio photos + customer accounts + modern UX + inventory + waiting on email
+## Status: LIVE — P1/P2 done, Phase 3 (studio admin + shipping) built, emails armed-when-keyed
 
 Phase 1 (static premium gallery) is LIVE. Phase 2 marketplace (Neon/Drizzle catalog,
 cookie cart, Razorpay Standard Checkout) + customer accounts + a modern UX pass
 (wishlist, avatar menu, toasts, checkout steps, order timeline, back-to-top, share,
 testimonials) are fully deployed. The catalog now uses the owner's REAL artwork
-photos (8 pieces, all saleable). Login is REQUIRED for checkout. Razorpay TEST keys
-are armed — real-money launch needs live keys + real studio pricing.
-NEW in phase 2: sold/inventory tracking (auto-flagged on paid order) and Resend
-order emails (code wired; email sending needs RESEND_API_KEY + a verified
-sender/recipient on the user's side).
+photos (8 pieces, all saleable, placeholder pricing). Login is REQUIRED for checkout.
+Razorpay TEST keys are armed — real-money launch needs live keys + real studio pricing.
+Sold/inventory tracking auto-flags pieces on paid orders. Phase 3 added: a studio
+ADMIN dashboard (/admin — orders, artworks, commissions), shipping & tracking
+(states + tracking number + customer timeline + shipment email), and the contact
+form now persists enquiries into the `commissions` table fed to the admin list.
+Resend order emails are wired but need RESEND_API_KEY + verified sender/recipient.
 
 - **Production:** https://www.artblush.in (apex https://artblush.in 308-redirects here)
 - **Backup URL:** https://artblush.vercel.app
@@ -67,8 +69,12 @@ sender/recipient on the user's side).
   `public/portfolio-photos/` → update DB row if id/order changes).
 - **Schema** `db/schema.ts`: `artworks` (incl. `sold` bool — one-of-one inventory flag),
   `cart_items` (unique session+artwork),
-  `wishlist_items` (unique session+artwork), `users`, `sessions` (token PK, FK user,
-  expiry), `orders` (FK `userId`), `order_items`.
+  `wishlist_items` (unique session+artwork), `users` (role admin/customer, saved address),
+  `sessions` (token PK, FK user, expiry), `orders` (FK `userId`; also shipping_status
+  awaiting_shipment/shipped/delivered/returned + tracking_number/carrier + shipped/
+  delivered timestamps), `order_items`, `commissions` (name/email/phone/enquiryType/
+  message + status new/contacted/in_progress/completed/declined + admin note; fed by
+  the /contact form).
   Prices stored in PAISE (Razorpay convention).
 - **Auth** `lib/auth/` — custom, no third-party auth lib:
   - `password.ts`: bcryptjs (hash cost 12, server-only)
@@ -109,12 +115,33 @@ sender/recipient on the user's side).
   cart rejects sold pieces; `createCheckoutOrder` re-checks the cart against live DB
   rows and errors if a piece sold in between. Sold pieces stay in the portfolio gallery
   (works of art, one-of-one) but the detail page shows the "Interested?" band.
-- **Emails (Phase 2, wired)**: `lib/email.ts` (Resend) sends the customer an order
-  confirmation (summary + shipping + order ref) on paid order, plus an optional studio
-  notification to `ARTBLUSH_STUDIO_NOTIFY_EMAIL`. Never blocks payment on email
-  (Promise.allSettled). Requires env RESEND_API_KEY + RESEND_FROM_EMAIL (currently
-  defaults to Resend sandbox `onboarding@resend.dev`; senders/recipients must be
-  verified in the Resend dashboard until a domain is added).
+- **AUTH / ADMIN (Phase 3)**: `users.role` defaults `customer`. Who is an admin?
+  Role in DB OR email listed in env `ADMIN_EMAILS` (comma-separated) — checked by
+  `isAdminUser`. `requireAdmin()` in `lib/auth/session.ts` redirects guests to
+  /login?next=/admin and non-admins to /account. `/api/me` returns `{user, isAdmin}`;
+  the header avatar dropdown shows an "Admin" link for admins.
+- **ADMIN dashboard (Phase 3)** `app/admin/`:
+  - `layout.tsx` guards all admin pages with `requireAdmin()`; tabs: Dashboard,
+    Orders, Artworks, Commissions. Server actions in `app/admin/actions.ts`
+    (each re-guards with requireAdmin).
+  - `/admin` stats (orders, revenue, awaiting-shipment, sold, new commissions).
+  - `/admin/orders` + `/admin/orders/[id]`: payment status + shipping status /
+    tracking number updates. Marking "shipped" emails the customer (Resend).
+  - `/admin/artworks`: per-piece status/price(₹, stored as paise)/saleable. Status
+    "Available" relists sold pieces (sold=false). This is the manual relist/revert
+    tool for sold flags.
+  - `/admin/commissions`: contact-form enquiries with status + internal note.
+  - robots disallows /admin, /account, /cart, /checkout.
+- **Commissions (Phase 3)**: `/contact` form POSTs via `app/contact/actions.ts`
+  (`submitCommission`) into the `commissions` table + notifies the studio email
+  (best-effort). Was previously a fake client-only form.
+- **Emails (Phase 2/3, wired)**: `lib/email.ts` (Resend) sends the customer an
+  order confirmation (summary + shipping + order ref) on paid order, a shipment
+  notification when the admin marks an order shipped, a studio notification on
+  paid orders and new commissions. Never blocks payments/actions on email
+  (Promise.allSettled / best-effort). Requires env RESEND_API_KEY + RESEND_FROM_EMAIL
+  (defaults to sandbox `onboarding@resend.dev`; verified sender/recipient needed
+  in the Resend dashboard until a domain is added).
 - **DB access** `db/index.ts` (`getDb` lazy singleton, `isDatabaseConfigured()`);
   `lib/data.ts` falls back to the static array in `lib/artworks.ts` when no DB.
 
@@ -124,7 +151,8 @@ sender/recipient on the user's side).
   `/account` (+ `/orders`, `/orders/[id]`, `/profile`) — all login-guarded.
 - `/cart` (dynamic), `/checkout` (dynamic, login required), `/checkout/success`,
   `/wishlist` (dynamic — reads the cart session cookie), `/api/me` (GET, session-aware),
-  `/api/razorpay/webhook` (POST). sitemap updated.
+  `/api/razorpay/webhook` (POST), `/admin` + subpages (dynamic, requireAdmin).
+  sitemap updated.
 - NOTE: root layout does NOT read the session — only protected pages do, so public
   marketing routes stay prerenderable. If you add session reads to the root layout
   everything becomes dynamic.
@@ -172,14 +200,18 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 ## Placeholder / TODO (phase-gating)
 
 - [x] Phase 2 inventory: sold flag auto-set on paid order (checkout guards double-sell)
+- [x] Phase 3 admin dashboard: orders / artworks / commissions management
+- [x] Phase 3 shipping & tracking: statuses, tracking number, customer timeline, shipment email
+- [x] Phase 3 commissions: contact form → DB (admin manages pipeline)
 - [~] Phase 2 customer email: Resend code wired; needs RESEND_API_KEY in envs +
       verified sender/recipient on the Resend dashboard before mail actually sends
+- [ ] Set ADMIN_EMAILS + promote owner role in DB; add REAL contact/studio email
 - [ ] Swap placeholder artwork prices for real studio pricing before real-money launch
 - [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
 - [ ] Replace LIVE Razorpay keys when going into production
-- [ ] Replace contact email placeholder
+- [ ] Replace contact email placeholder in /contact + Footer
 - [ ] Replace placeholder Testimonials quotes with real collector words
 - [ ] Add rest of the portfolio pieces once photographed (owner uploads to assets/portfolio-photos/)
 - [ ] og:image per-page is done for artwork; consider a branded 1200×630 OG card
-- [ ] Phase 3: admin dashboard, commission management, shipping API/tracking, automated notifications
+- [ ] Phase 3 gaps held over: shipping API (real courier), tracking webhooks, admin notifications UI
 - [ ] Phase 4: commission builder, progress tracking, gift cards, reviews, limited editions, wall visualization, personalized recommendations

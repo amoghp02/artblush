@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { submitCommission } from "./actions";
 
 const enquiryTypes = [
   "Custom Portrait",
@@ -13,14 +14,13 @@ const inputClasses =
   "w-full border-b border-foreground/15 bg-transparent py-3 text-base text-foreground placeholder:text-foreground/35 transition-colors focus:border-accent focus:outline-none";
 
 export default function ContactForm() {
-  const [submitted, setSubmitted] = useState(false);
+  const [state, formAction, pending] = useActionState(submitCommission, {
+    ok: false,
+    error: null,
+  });
+  const [reset, setReset] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitted(true);
-  }
-
-  if (submitted) {
+  if (state.ok && !reset) {
     return (
       <div className="border border-foreground/10 bg-[#efe9dc] p-8 sm:p-10" role="status">
         <p className="font-display text-2xl font-light text-foreground sm:text-3xl">
@@ -32,7 +32,7 @@ export default function ContactForm() {
         </p>
         <button
           type="button"
-          onClick={() => setSubmitted(false)}
+          onClick={() => setReset(true)}
           className="mt-8 inline-flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.18em] text-foreground transition-colors hover:text-accent"
         >
           Send another enquiry →
@@ -42,7 +42,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form action={formAction} onSubmit={() => setReset(false)} className="space-y-8">
       <div className="grid gap-8 sm:grid-cols-2">
         <div>
           <label
@@ -111,11 +111,21 @@ export default function ContactForm() {
         />
       </div>
 
+      {state.error && (
+        <p
+          role="alert"
+          className="border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-foreground"
+        >
+          {state.error}
+        </p>
+      )}
+
       <button
         type="submit"
-        className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[13px] font-medium uppercase tracking-[0.18em] text-background transition-colors bg-foreground hover:bg-[#3a352c]"
+        disabled={pending}
+        className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[13px] font-medium uppercase tracking-[0.18em] text-background transition-colors bg-foreground hover:bg-[#3a352c] disabled:opacity-60"
       >
-        Send Enquiry
+        {pending ? "Sending…" : "Send Enquiry"}
       </button>
     </form>
   );
