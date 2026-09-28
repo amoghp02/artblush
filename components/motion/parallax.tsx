@@ -29,7 +29,7 @@ export function Parallax({
       <motion.div
         aria-hidden
         style={{ y: reduced ? 0 : y }}
-        className="absolute inset-x-0 -top-[14%] h-[128%]"
+        className="absolute inset-x-0 -top-[6%] h-[112%]"
       >
         {children}
       </motion.div>

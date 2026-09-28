@@ -263,6 +263,10 @@ Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com
   `prefers-reduced-motion` via `useReducedMotion()`. Call sites: home page sections,
   `ArtworkCard` root (spring hover), `ProcessSection` (stagger). The older
   IntersectionObserver `components/Reveal.tsx` still exists for other pages.
+  **Lesson**: image parallax layers must NOT overscale more than ~12% (`-top-[6%] h-[112%]`), else the
+  artwork visibly zooms/crops at rest under `object-cover`/`fill` (hero at `h-[128%]` looked broken).
+  The HERO image uses NO parallax — exact box fill — the story photo parses gently. Puppeteer-core is a
+  devDependency for quick headless visual probes when layout regressions are suspected.
 - Added deps: `drizzle-orm`, `drizzle-kit` (dev), `@neondatabase/serverless`,
   `razorpay`, `tsx` (dev).
 - `.env.local` + Vercel env vars needed: DATABASE_URL, RAZORPAY_KEY_ID,

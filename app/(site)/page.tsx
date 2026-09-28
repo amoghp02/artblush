@@ -68,14 +68,12 @@ export default async function HomePage() {
             <FadeIn delay={140}>
               <div className="relative">
                 <div className="relative overflow-hidden bg-[#e8e2d3] pb-[118%]">
-                  <Parallax>
-                    <ArtworkImage
-                      src={hero.image}
-                      alt={hero.imageAlt}
-                      priority
-                      sizes="(min-width: 1024px) 45vw, 100vw"
-                    />
-                  </Parallax>
+                  <ArtworkImage
+                    src={hero.image}
+                    alt={hero.imageAlt}
+                    priority
+                    sizes="(min-width: 1024px) 45vw, 100vw"
+                  />
                 </div>
                 <div className="pointer-events-none absolute inset-0 border border-foreground/5" />
                 <div className="mt-5 flex items-baseline justify-between">
