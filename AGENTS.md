@@ -184,6 +184,14 @@ Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com
     "Available" relists sold pieces (sold=false). This is the manual relist/revert
     tool for sold flags.
   - `/admin/commissions`: contact-form enquiries with status + internal note.
+  - `/admin/analytics`: sales analytics — 12-month revenue bar chart, revenue-by-
+    medium donut (SVG, `app/admin/analytics/Donut.tsx`, stroke-dasharray technique),
+    top pieces horizontal bars, orders-by-status donut. Data from
+    `lib/admin/stats.ts` (`getRevenueMonthly`, `getRevenueByMedium`,
+    `getOrderStatusBreakdown`, `getTopPieces`). Bar/donut views are server-side
+    (no chart lib). The React-compiler lint (`react-hooks/immutability`) forbids
+    mutating render-scope variables — precompute offsets, don't `offset -=` in a
+    `.map()`.
   - robots disallows /admin, /account, /cart, /checkout.
 - **Commissions (Phase 3)**: `/contact` form POSTs via `app/contact/actions.ts`
   (`submitCommission`) into the `commissions` table + notifies the studio email
