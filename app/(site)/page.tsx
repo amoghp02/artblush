@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import ButtonLink from "@/components/ButtonLink";
 import ArtworkCard from "@/components/ArtworkCard";
@@ -6,8 +7,6 @@ import ProcessSection from "@/components/ProcessSection";
 import CTASection from "@/components/CTASection";
 import Testimonials from "@/components/Testimonials";
 import ArtworkImage from "@/components/ArtworkImage";
-import { FadeIn, RevealGroup, RevealItem } from "@/components/motion/fade-in";
-import { Parallax } from "@/components/motion/parallax";
 import { getFeaturedArtworks, getArtworks } from "@/lib/data";
 
 const processSteps = [
@@ -44,7 +43,7 @@ export default async function HomePage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-[1400px] px-5 pt-28 sm:px-8 sm:pt-32 md:px-10 md:pt-36">
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
-            <FadeIn>
+            <Reveal>
               <p className="mb-6 text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/45">
                 Hand-drawn portraits & originals
               </p>
@@ -63,11 +62,11 @@ export default async function HomePage() {
                   Commission a Portrait
                 </ButtonLink>
               </div>
-            </FadeIn>
+            </Reveal>
 
-            <FadeIn delay={140}>
+            <Reveal delay={150}>
               <div className="relative">
-                <div className="relative overflow-hidden bg-[#e8e2d3] pb-[118%]">
+                <div className="relative overflow-hidden pb-[118%] bg-[#e8e2d3]">
                   <ArtworkImage
                     src={hero.image}
                     alt={hero.imageAlt}
@@ -83,48 +82,44 @@ export default async function HomePage() {
                   </p>
                 </div>
               </div>
-            </FadeIn>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* Featured Artwork */}
       <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:px-10 md:py-32">
-        <FadeIn>
+        <Reveal>
           <SectionHeading
             eyebrow="Featured"
             title="Selected Works"
             description="A collection of portraits, studies and original works created by hand."
           />
-        </FadeIn>
+        </Reveal>
 
         {/* Editorial asymmetric grid */}
-        <RevealGroup className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-          <RevealItem>
-            <ArtworkCard artwork={featured[0]} priority />
-          </RevealItem>
-          <RevealItem className="lg:pt-16">
+        <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+          <ArtworkCard artwork={featured[0]} priority />
+          <div className="lg:pt-16">
             <ArtworkCard artwork={featured[1]} />
-          </RevealItem>
-          <RevealItem className="lg:pt-8">
+          </div>
+          <div className="lg:pt-8">
             <ArtworkCard artwork={featured[2]} />
-          </RevealItem>
-          <RevealItem>
-            <ArtworkCard artwork={featured[3]} />
-          </RevealItem>
-          <RevealItem className="lg:pt-16">
+          </div>
+          <ArtworkCard artwork={featured[3]} />
+          <div className="lg:pt-16">
             <ArtworkCard artwork={featured[4]} />
-          </RevealItem>
-          <RevealItem className="lg:pt-8">
+          </div>
+          <div className="lg:pt-8">
             <ArtworkCard artwork={featured[5]} />
-          </RevealItem>
-        </RevealGroup>
+          </div>
+        </div>
       </section>
 
       {/* Story */}
       <section className="border-t border-foreground/10 bg-[#efe9dc]">
         <div className="mx-auto grid max-w-[1400px] items-center gap-12 px-5 py-24 sm:px-8 md:px-10 md:py-32 lg:grid-cols-2 lg:gap-20">
-          <FadeIn>
+          <Reveal>
             <SectionHeading
               eyebrow="The story"
               title="Every line tells a story."
@@ -142,24 +137,22 @@ export default async function HomePage() {
                 →
               </span>
             </Link>
-          </FadeIn>
+          </Reveal>
 
-          <FadeIn delay={120}>
+          <Reveal delay={120}>
             <div className="relative">
-              <div className="relative overflow-hidden bg-[#e8e2d3] pb-[72%]">
-                <Parallax from={-10} to={10}>
-                  <ArtworkImage
-                    src="/portfolio-photos/pensive.jpg"
-                    alt="A charcoal portrait study resting on the studio table, mid-thought"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                  />
-                </Parallax>
+              <div className="relative overflow-hidden pb-[72%] bg-[#e8e2d3]">
+                <ArtworkImage
+                  src="/portfolio-photos/pensive.jpg"
+                  alt="A charcoal portrait study resting on the studio table, mid-thought"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                />
               </div>
               <p className="mt-4 text-xs tracking-wide text-foreground/50">
                 The studio — where reference becomes sketch, and sketch becomes memory.
               </p>
             </div>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
@@ -168,7 +161,7 @@ export default async function HomePage() {
 
       {/* Custom artwork */}
       <section className="mx-auto max-w-[1400px] px-5 py-24 sm:px-8 md:px-10 md:py-32">
-        <FadeIn>
+        <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-4xl leading-[1.1] font-light text-foreground sm:text-5xl">
               Made for you.
@@ -183,18 +176,18 @@ export default async function HomePage() {
               </ButtonLink>
             </div>
           </div>
-        </FadeIn>
+        </Reveal>
       </section>
 
       {/* Process */}
       <section className="mx-auto max-w-[1400px] px-5 pb-24 sm:px-8 md:px-10 md:pb-32">
-        <FadeIn>
+        <Reveal>
           <SectionHeading
             eyebrow="Process"
             title="From reference to finished artwork"
             className="mb-14"
           />
-        </FadeIn>
+        </Reveal>
         <ProcessSection steps={processSteps} />
       </section>
 
