@@ -53,13 +53,9 @@ export async function getAdminCustomers(q?: string): Promise<AdminCustomer[]> {
       ...row,
       orderCount: a?.orderCount ?? 0,
       paidRevenuePaise: a?.paidRevenue ?? 0,
-      lastOrderAt: a?.lastOrderAt ?? null,
+      lastOrderAt: a?.lastOrderAt ? new Date(a.lastOrderAt) : null,
     };
   });
-}
-
-export interface AdminCustomerWithOrders extends AdminCustomer {
-  orders: ReturnType<typeof getCustomerOrders>;
 }
 
 export async function getAdminCustomer(id: string): Promise<AdminCustomer | null> {
@@ -81,7 +77,7 @@ export async function getAdminCustomer(id: string): Promise<AdminCustomer | null
     ...user,
     orderCount: agg?.orderCount ?? 0,
     paidRevenuePaise: agg?.paidRevenue ?? 0,
-    lastOrderAt: agg?.lastOrderAt ?? null,
+    lastOrderAt: agg?.lastOrderAt ? new Date(agg.lastOrderAt) : null,
   };
 }
 
