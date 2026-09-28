@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { users } from "@/db/schema";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/auth/site-url";
 import {
   createPasswordResetRecord,
   hashResetToken,
@@ -11,12 +12,6 @@ import {
 } from "@/lib/auth/password-reset";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.NODE_ENV === "production"
-    ? "https://www.artblush.in"
-    : "http://localhost:3000");
 
 export interface ForgotPasswordState {
   error: string | null;
@@ -47,7 +42,7 @@ export async function requestPasswordReset(
     const token = issueResetToken();
     const stored = await createPasswordResetRecord(user.id, hashResetToken(token));
     if (stored) {
-      const resetUrl = `${SITE_URL}/reset-password?token=${encodeURIComponent(token)}`;
+      const resetUrl = `${getSiteUrl()}/reset-password?token=${encodeURIComponent(token)}`;
       await sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl });
     }
   }

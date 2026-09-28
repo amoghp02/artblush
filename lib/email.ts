@@ -128,6 +128,45 @@ export async function sendOrderConfirmationEmail({
   }
 }
 
+export async function sendDeliveryNotification({
+  to,
+  customerName,
+  orderReference,
+}: {
+  to: string;
+  customerName: string;
+  orderReference: string;
+}): Promise<boolean> {
+  if (!resend) return false;
+
+  const html = renderShell(
+    `Delivered, ${customerName}.`,
+    `
+      <p style="font-size:14px;line-height:1.7;color:#1f1b15;margin:0 0 24px;">
+        Your artwork from order <strong>${orderReference}</strong> has been
+        delivered. We hope it found a beautiful wall.
+      </p>
+      <p style="font-size:13px;line-height:1.7;color:#5f584c;margin:0;">
+        If anything about your piece needs attention, just reply to this email
+        and the studio will make it right.
+      </p>
+    `,
+  );
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      replyTo: process.env.RESEND_REPLY_TO_EMAIL || "hello.artblush@gmail.com",
+      subject: `Your ArtBlush order ${orderReference} has been delivered`,
+      html,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function sendPasswordResetEmail({
   to,
   name,

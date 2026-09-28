@@ -5,9 +5,19 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { destroySession, requireAdmin } from "@/lib/auth/session";
 import { getDb } from "@/db";
-import { sessions } from "@/db/schema";
+import { sessions, users } from "@/db/schema";
 import { revalidateStorefrontForArtworks } from "@/lib/revalidate-site";
-import { sendShipmentNotification } from "@/lib/email";
+import {
+  sendDeliveryNotification,
+  sendPasswordResetEmail,
+  sendShipmentNotification,
+} from "@/lib/email";
+import {
+  createPasswordResetRecord,
+  hashResetToken,
+  issueResetToken,
+} from "@/lib/auth/password-reset";
+import { getSiteUrl } from "@/lib/auth/site-url";
 import {
   getAdminOrder,
   updateOrderPaymentStatus,
@@ -75,6 +85,19 @@ export async function updateShippingAction(formData: FormData) {
     });
   }
 
+  if (
+    ok &&
+    shippingStatus === "delivered" &&
+    before &&
+    before.shippingStatus !== "delivered"
+  ) {
+    await sendDeliveryNotification({
+      to: before.customerEmail,
+      customerName: before.customerName,
+      orderReference: orderId.slice(0, 8).toUpperCase(),
+    });
+  }
+
   revalidatePath("/admin/orders");
   redirect(`/admin/orders/${orderId}`);
 }
@@ -119,6 +142,53 @@ export async function updateCommissionAction(formData: FormData) {
 export async function adminLogoutAction() {
   await destroySession();
   redirect("/login");
+}
+
+export async function updateCustomerRoleAction(formData: FormData) {
+  const me = await requireAdmin();
+  const id = str(formData, "id");
+  const role = str(formData, "role");
+  if (!id || !["admin", "customer"].includes(role)) return;
+
+  const [target] = await getDb()
+    .select({ id: users.id, role: users.role })
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
+  if (!target) return;
+
+  if (target.id === me.id && role !== "admin") {
+    redirect("/admin/customers?error=You cannot demote yourself.");
+  }
+
+  await getDb()
+    .update(users)
+    .set({ role: role as "admin" | "customer", updatedAt: new Date() })
+    .where(eq(users.id, id));
+  revalidatePath("/admin/customers");
+  redirect("/admin/customers");
+}
+
+export async function sendCustomerResetAction(formData: FormData) {
+  await guard();
+  const id = str(formData, "id");
+  if (!id) return;
+
+  const [user] = await getDb()
+    .select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
+  if (!user) return;
+
+  const token = issueResetToken();
+  const stored = await createPasswordResetRecord(user.id, hashResetToken(token));
+  if (stored) {
+    const resetUrl = `${getSiteUrl()}/reset-password?token=${encodeURIComponent(token)}`;
+    await sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl });
+  }
+  revalidatePath("/admin/customers");
+  redirect("/admin/customers?sent=1");
 }
 
 export async function revokeAdminSessionAction(formData: FormData) {

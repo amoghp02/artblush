@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Printer } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatINR, orderStatusLabel } from "@/lib/orders";
 import { getAdminOrder, shippingStatusLabel } from "@/lib/admin/orders";
@@ -13,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { CopyAddressButton } from "./CopyAddressButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -63,6 +65,12 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             <Badge variant="outline">
               {shippingStatusLabel(order.shippingStatus)}
             </Badge>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link href={`/admin/orders/${order.id}/invoice`}>
+                <Printer size={13} />
+                Invoice
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -178,6 +186,19 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   </>
                 )}
               </p>
+              <div className="mt-4">
+                <CopyAddressButton
+                  address={[
+                    order.customerName,
+                    order.addressLine1,
+                    order.addressLine2,
+                    `${order.city}, ${order.state} — ${order.postalCode}`,
+                    order.customerPhone,
+                  ]
+                    .filter(Boolean)
+                    .join("\n")}
+                />
+              </div>
             </CardContent>
           </Card>
 

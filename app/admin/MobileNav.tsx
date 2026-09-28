@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 const tabs = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
   { label: "Orders", href: "/admin/orders", icon: "orders" },
+  { label: "Customers", href: "/admin/customers", icon: "customers" },
   { label: "Artworks", href: "/admin/artworks", icon: "artworks" },
   { label: "Commissions", href: "/admin/commissions", icon: "commissions" },
 ];

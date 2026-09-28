@@ -12,6 +12,8 @@ import {
 import {
   listActiveAdminSessions,
 } from "@/lib/admin/sessions";
+import { getSalesLast30Days, getTopPieces } from "@/lib/admin/stats";
+import { SalesChart } from "./SalesChart";
 import { revokeAdminSessionAction } from "@/app/admin/actions";
 import {
   Card,
@@ -60,6 +62,11 @@ export default async function AdminDashboardPage() {
 
   const activeSessions = await listActiveAdminSessions();
 
+  const [salesDays, topPieces] = await Promise.all([
+    getSalesLast30Days(),
+    getTopPieces(),
+  ]);
+
   const stats = [
     { label: "Total orders", value: String(orderSummaries.length) },
     { label: "Revenue (paid)", value: formatINR(revenuePaise) },
@@ -104,6 +111,8 @@ export default async function AdminDashboardPage() {
           </Card>
         ))}
       </div>
+
+      <SalesChart days={salesDays} top={topPieces} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="min-w-0 sm:col-span-2 lg:col-span-1">

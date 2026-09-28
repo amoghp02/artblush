@@ -28,6 +28,7 @@ export const metadata = {
 const tabs = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
   { label: "Orders", href: "/admin/orders", icon: "orders" },
+  { label: "Customers", href: "/admin/customers", icon: "customers" },
   { label: "Artworks", href: "/admin/artworks", icon: "artworks" },
   { label: "Commissions", href: "/admin/commissions", icon: "commissions" },
 ];
@@ -53,7 +54,7 @@ export default async function AdminLayout({
       <body>
         <div className="admin-shell">
           <div className="flex min-h-dvh">
-            <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-zinc-950 text-zinc-300 md:flex">
+            <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-zinc-950 text-zinc-300 print:hidden md:flex">
               <div className="px-6 py-6">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-zinc-500">
                   ArtBlush
@@ -80,7 +81,7 @@ export default async function AdminLayout({
             </aside>
 
             <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/90 px-5 backdrop-blur lg:px-8">
+              <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/90 px-5 backdrop-blur print:hidden lg:px-8">
                 <div className="flex items-center gap-3">
                   <MobileNav />
                   <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">

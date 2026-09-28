@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, MessagesSquare, Package, Palette } from "lucide-react";
+import { LayoutDashboard, MessagesSquare, Package, Palette, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
   orders: Package,
+  customers: Users,
   artworks: Palette,
   commissions: MessagesSquare,
 };
