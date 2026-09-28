@@ -131,7 +131,7 @@ export default async function AdminCustomerDetailPage({ params }: PageProps) {
                 {orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">
-                      #{order.id.slice(0, 8)}
+                      {order.orderReference}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-muted-foreground">
                       {new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(

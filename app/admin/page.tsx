@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
                           href={`/admin/orders/${order.id}`}
                           className="font-medium text-foreground hover:text-accent hover:underline underline-offset-2"
                         >
-                          #{order.id.slice(0, 8)}
+                          {order.orderReference}
                         </Link>
                       </TableCell>
                       <TableCell className="text-muted-foreground">

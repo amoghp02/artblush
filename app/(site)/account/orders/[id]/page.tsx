@@ -42,7 +42,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       <div className="mt-8 flex flex-wrap items-baseline justify-between gap-4">
         <div>
           <h2 className="text-[11px] font-medium uppercase tracking-[0.28em] text-foreground/45">
-            Order {order.id.slice(0, 8)}
+            Order {order.orderReference}
           </h2>
           <p className="mt-1 text-sm text-foreground/60">{placedAt}</p>
         </div>

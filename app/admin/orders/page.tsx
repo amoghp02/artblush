@@ -110,7 +110,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order.id}>
-                <TableCell className="font-medium">#{order.id.slice(0, 8)}</TableCell>
+                <TableCell className="font-medium">{order.orderReference}</TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
                     new Date(order.createdAt),

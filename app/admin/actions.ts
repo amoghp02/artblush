@@ -79,7 +79,7 @@ export async function updateShippingAction(formData: FormData) {
     await sendShipmentNotification({
       to: before.customerEmail,
       customerName: before.customerName,
-      orderReference: orderId.slice(0, 8).toUpperCase(),
+      orderReference: before.orderReference,
       trackingNumber,
       trackingCarrier,
     });
@@ -94,7 +94,7 @@ export async function updateShippingAction(formData: FormData) {
     await sendDeliveryNotification({
       to: before.customerEmail,
       customerName: before.customerName,
-      orderReference: orderId.slice(0, 8).toUpperCase(),
+      orderReference: before.orderReference,
     });
   }
 

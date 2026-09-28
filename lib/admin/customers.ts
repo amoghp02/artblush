@@ -84,6 +84,7 @@ export async function getAdminCustomer(id: string): Promise<AdminCustomer | null
 export async function getCustomerOrders(userId: string): Promise<
   {
     id: string;
+    orderReference: string;
     createdAt: Date;
     status: "created" | "paid" | "failed" | "refunded";
     shippingStatus: string;
@@ -95,6 +96,7 @@ export async function getCustomerOrders(userId: string): Promise<
   const rows = await getDb()
     .select({
       id: orders.id,
+      orderReference: orders.orderReference,
       createdAt: orders.createdAt,
       status: orders.status,
       shippingStatus: orders.shippingStatus,

@@ -1,9 +1,17 @@
 import "server-only";
 
-import { count as countFn, desc, eq, inArray } from "drizzle-orm";
+import { count as countFn, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import type { OrderRow, OrderItemRow } from "@/db/schema";
+
+/** Next sequential order reference (e.g. AB1005, AB1006 …). */
+export async function getNextOrderReference(): Promise<string> {
+  if (!isDatabaseConfigured()) return "AB1005";
+  const res = await getDb().execute(sql`select nextval('orders_ref_seq') as n`);
+  const n = Number(res.rows[0]?.n ?? 0);
+  return `AB${String(n).padStart(4, "0")}`;
+}
 
 export interface OrderWithItems extends OrderRow {
   items: OrderItemRow[];

@@ -71,12 +71,24 @@ Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com
 - **Schema** `db/schema.ts`: `artworks` (incl. `sold` bool — one-of-one inventory flag),
   `cart_items` (unique session+artwork),
   `wishlist_items` (unique session+artwork), `users` (role admin/customer, saved address),
-  `sessions` (token PK, FK user, expiry), `orders` (FK `userId`; also shipping_status
+  `sessions` (token PK, FK user, expiry), `orders`
+  (FK `userId`; also `order_reference` — the HUMAN-FRIENDLY sequential ref
+  `AB1001`, `AB1002`, … unique+NOT NULL — plus shipping_status
   awaiting_shipment/shipped/delivered/returned + tracking_number/carrier + shipped/
   delivered timestamps), `order_items`, `commissions` (name/email/phone/enquiryType/
   message + status new/contacted/in_progress/completed/declined + admin note; fed by
   the /contact form).
   Prices stored in PAISE (Razorpay convention).
+- **Order reference (AB####)**: a Postgres SEQUENCE `orders_ref_seq` (created via
+  raw SQL — drizzle-kit cannot create sequences and CRASHES when a schema column
+  carries `.default(sql\`nextval(...)\`)`, so the column is `.notNull().unique()`
+  in schema with the DB-side default `('AB' || lpad(nextval('orders_ref_seq')::text,4,'0'))`
+  added by raw migration). `createCheckoutOrder` pre-fetches the next value
+  (`getNextOrderReference()` in `lib/orders.ts`), uses it as the Razorpay receipt,
+  and inserts it explicitly; the DB default is a backstop. Displayed everywhere as
+  `order.orderReference` — the UUID `id` stays in routes/links only. Existing rows
+  were backfilled oldest→newest starting AB1001. Next reuse note: Neon returns
+  `nextval`/timestamps as strings; wrap in Number()/new Date where needed.
 - **Auth** `lib/auth/` — custom, no third-party auth lib:
   - `password.ts`: bcryptjs (hash cost 12, server-only)
   - `session.ts`: DB-backed session token in `artblush_session` cookie (30-day TTL,

@@ -46,7 +46,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-foreground">
-              Order #{order.id.slice(0, 8)}
+              Order {order.orderReference}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{placedAt}</p>
           </div>

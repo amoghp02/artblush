@@ -46,7 +46,7 @@ export default async function AdminOrderInvoicePage({ params }: PageProps) {
               Invoice
             </p>
             <p className="text-sm text-muted-foreground">
-              #{order.id.slice(0, 8).toUpperCase()}
+              {order.orderReference}
             </p>
           </div>
         </div>

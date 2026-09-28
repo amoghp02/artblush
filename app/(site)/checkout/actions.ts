@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import { eq, inArray } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { artworks, orderItems, orders, users } from "@/db/schema";
-import { clearCart, getCartLines, cartTotal } from "@/lib/cart/server";
+import {
+  clearCart,
+  getCartLines,
+  cartTotal,
+} from "@/lib/cart/server";
+import { getNextOrderReference } from "@/lib/orders";
 import { getCurrentUser } from "@/lib/auth/session";
 import { revalidateStorefrontForArtworks } from "@/lib/revalidate-site";
 import {
@@ -74,7 +79,8 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
     throw new Error("Order total is below the ₹1 minimum for online payment.");
   }
 
-  const receipt = `artblush-${Date.now()}`;
+  const orderReference = await getNextOrderReference();
+  const receipt = orderReference;
 
   const order = await createRazorpayOrder({
     amountPaise: totalPaise,
@@ -87,6 +93,7 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<Checkou
     .insert(orders)
     .values({
       userId: user.id,
+      orderReference,
       razorpayOrderId: order.id,
       amount: order.amount,
       currency: order.currency,
@@ -207,7 +214,7 @@ export async function confirmPaidOrder({
 
   if (orderRow) {
     const mailData = {
-      orderReference: dbOrderId.slice(0, 8).toUpperCase(),
+      orderReference: orderRow.orderReference,
       lines: itemRows.map((item) => ({
         title: item.title,
         quantity: item.quantity,

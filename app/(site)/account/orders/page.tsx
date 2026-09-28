@@ -46,7 +46,7 @@ export default async function OrdersPage() {
             >
               <div>
                 <p className="text-sm font-medium text-foreground group-hover:text-accent">
-                  Order {order.id.slice(0, 8)}
+                  Order {order.orderReference}
                   <span className="ml-3 text-foreground/45">
                     {order.itemCount > 1
                       ? `${order.itemCount} artworks`

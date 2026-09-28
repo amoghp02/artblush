@@ -41,7 +41,7 @@ export default async function CheckoutSuccessPage({
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between gap-6">
               <dt className="text-foreground/45">Order reference</dt>
-              <dd className="text-foreground">{order?.id.slice(0, 8) ?? "—"}</dd>
+              <dd className="text-foreground">{order?.orderReference ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-6">
               <dt className="text-foreground/45">Payment ID</dt>
