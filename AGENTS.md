@@ -156,10 +156,25 @@ Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com
     Components" and 500s the whole dashboard.
   - `/admin` dashboard: stats cards, latest orders, "Active admin sessions" widget
     (current signed-in admin sessions with per-row Revoke →
-    `revokeAdminSessionAction`; sessions come from `lib/admin/sessions.ts`).
+    `revokeAdminSessionAction`; sessions come from `lib/admin/sessions.ts`), plus
+    a **30-day sales bar chart + top pieces sold** (`lib/admin/stats.ts` queries
+    `orders.status='paid', created_at > now()-30 days` grouped by day, and top
+    `order_items` by revenue; rendered by `app/admin/SalesChart.tsx`).
   - `/admin` stats (orders, revenue, awaiting-shipment, sold, new commissions).
+  - `/admin/customers` + `/admin/customers/[id]`: registered users (from `users`)
+    with search (GET `?q=`, name/email ilike), change role (self-demotion of an
+    admin is blocked by `updateCustomerRoleAction` guard → redirects with `?error=`),
+    "Send reset" password-reset email (`sendCustomerResetAction`, reuses the
+    password_resets flow), and per-customer order history. Data layer in
+    `lib/admin/customers.ts`. GOTCHA: Neon returns `timestamp` columns as STRINGS,
+    not Dates — `max(created_at)` via `sql<Date|null>` must be wrapped in
+    `new Date(...)` or `Intl.DateTimeFormat.format()` throws "Invalid time value".
   - `/admin/orders` + `/admin/orders/[id]`: payment status + shipping status /
-    tracking number updates. Marking "shipped" emails the customer (Resend).
+    tracking number updates. Marking "shipped" emails the customer, "delivered"
+    emails a delivered notice (via `updateShippingAction`). The order detail has
+    a **Copy address** button (clipboard) and an **Invoice** link →
+    `/admin/orders/[id]/invoice/` (print-optimized page; sidebar + header carry
+    `print:hidden` so printing is clean).
   - Admin list pages (`/admin/orders`, `/admin/artworks`, `/admin/commissions`)
     have sort + filter via the shared `AdminFilters` client component
     (`app/admin/AdminFilters.tsx`) — it pushes `<key>=<value>` into the URL
@@ -250,7 +265,7 @@ Keep that ordering if you touch `lib/cart/server.ts`.
 - [x] Phase 3 shipping & tracking: statuses, tracking number, customer timeline, shipment email
 - [x] Phase 3 commissions: contact form → DB (admin manages pipeline)
 - [x] Phase 2 customer email: Resend wired + verified (studio@artblush.in → gmail, Reply-To)
-- [ ] Set ADMIN_EMAILS + promote owner role in DB; add REAL contact/studio email
+- [x] Set ADMIN_EMAILS + promote owner role in DB; contact/studio email is hello.artblush@gmail.com
 - [ ] Swap placeholder artwork prices for real studio pricing before real-money launch
 - [ ] Optionally register Razorpay webhook (https://www.artblush.in/api/razorpay/webhook, payment.captured) + set RAZORPAY_WEBHOOK_SECRET
 - [ ] Replace LIVE Razorpay keys when going into production
