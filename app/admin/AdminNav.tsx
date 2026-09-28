@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, MessagesSquare, Package, Palette, Users } from "lucide-react";
+import { BarChart3, LayoutDashboard, MessagesSquare, Package, Palette, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const ICONS: Record<string, LucideIcon> = {
   customers: Users,
   artworks: Palette,
   commissions: MessagesSquare,
+  analytics: BarChart3,
 };
 
 interface NavItem {

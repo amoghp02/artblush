@@ -11,6 +11,7 @@ const tabs = [
   { label: "Customers", href: "/admin/customers", icon: "customers" },
   { label: "Artworks", href: "/admin/artworks", icon: "artworks" },
   { label: "Commissions", href: "/admin/commissions", icon: "commissions" },
+  { label: "Analytics", href: "/admin/analytics", icon: "analytics" },
 ];
 
 /** Hamburger nav for small screens — the sidebar is hidden below md. */
