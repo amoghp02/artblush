@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Artwork } from "@/lib/artworks";
 import ArtworkImage from "./ArtworkImage";
 import WishlistButton from "./WishlistButton";
+import { SpringLift } from "./motion/spring-lift";
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -10,7 +11,7 @@ interface ArtworkCardProps {
 
 export default function ArtworkCard({ artwork, priority = false }: ArtworkCardProps) {
   return (
-    <div className="relative">
+    <SpringLift className="relative">
       <Link
         href={`/artwork/${artwork.id}`}
         className="group block"
@@ -39,6 +40,6 @@ export default function ArtworkCard({ artwork, priority = false }: ArtworkCardPr
         </p>
       </Link>
       <WishlistButton artworkId={artwork.id} title={artwork.title} variant="card" />
-    </div>
+    </SpringLift>
   );
 }

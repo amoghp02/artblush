@@ -256,6 +256,13 @@ Resend dashboard; sender `studio@artblush.in`, Reply-To hello.artblush@gmail.com
   PATH refresh in a fresh shell; gh.exe at `C:\Program Files\GitHub CLI\gh.exe`.
 - Node v24, Next.js 16 (App Router + Turbopack), React 19, Tailwind v4.
 - Design tokens in `app/globals.css` (ivory `#f4efe6`, ink `#1f1b15`, clay `#9b6b43`).
+- **Motion**: `motion` (v13, the framer-motion successor) is installed. Client
+  primitives live in `components/motion/` — `fade-in.tsx` (FadeIn single reveal +
+  RevealGroup/RevealItem variants-stagger), `parallax.tsx` (scroll-linked image
+  depth, overscaled inner layer), `spring-lift.tsx` (card hover lift). All respect
+  `prefers-reduced-motion` via `useReducedMotion()`. Call sites: home page sections,
+  `ArtworkCard` root (spring hover), `ProcessSection` (stagger). The older
+  IntersectionObserver `components/Reveal.tsx` still exists for other pages.
 - Added deps: `drizzle-orm`, `drizzle-kit` (dev), `@neondatabase/serverless`,
   `razorpay`, `tsx` (dev).
 - `.env.local` + Vercel env vars needed: DATABASE_URL, RAZORPAY_KEY_ID,
